@@ -27,7 +27,13 @@ public final class MessageCatalogHolder {
                 }
                 final Map<String, String> safeParameters = ObjectHelper.getDefault(parameters, Collections.emptyMap());
                 final String cacheKey = buildCacheKey(code, safeParameters);
-                return CACHE.computeIfAbsent(cacheKey, key -> delegate.getMessage(code, safeParameters));
+                final String cachedMessage = CACHE.get(cacheKey);
+                if (cachedMessage != null) {
+                        return cachedMessage;
+                }
+                final String resolvedMessage = TextHelper.getDefault(delegate.getMessage(code, safeParameters), code);
+                CACHE.put(cacheKey, resolvedMessage);
+                return resolvedMessage;
         }
 
         public static String getMessage(final String code) {
