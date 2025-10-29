@@ -3,7 +3,7 @@ package co.edu.uco.ucochallenge.secondary.adapters.service;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +13,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import co.edu.uco.ucochallenge.crosscuting.exception.ExceptionLayer;
-import co.edu.uco.ucochallenge.crosscuting.exception.UcoChallengeException;
+import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
-import co.edu.uco.ucochallenge.crosscuting.messages.MessageKey;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageServicePortHolder;
 import co.edu.uco.ucochallenge.secondary.adapters.service.dto.RemoteCatalogEntry;
 import co.edu.uco.ucochallenge.secondary.ports.service.MessageServicePort;
@@ -60,8 +59,10 @@ public class MessageServiceAdapter implements MessageServicePort {
         } catch (final HttpClientErrorException.NotFound notFound) {
             return key;
         } catch (final RestClientException exception) {
-            throw UcoChallengeException.createTechnicalException(ExceptionLayer.APPLICATION,
-                    MessageKey.GENERAL_TECHNICAL_ERROR, exception);
+            throw InfrastructureException.buildFromCatalog(
+                    MessageCodes.Infrastructure.MessageService.UNAVAILABLE_TECHNICAL,
+                    MessageCodes.Infrastructure.MessageService.UNAVAILABLE_USER,
+                    Collections.emptyMap(), exception);
         }
     }
 
