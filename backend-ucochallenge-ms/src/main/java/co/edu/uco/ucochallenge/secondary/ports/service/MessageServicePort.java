@@ -1,8 +1,8 @@
-package co.edu.uco.ucochallenge.crosscuting.integration.message;
+package co.edu.uco.ucochallenge.secondary.ports.service;
 
 import java.util.Map;
 
-public interface MessageCatalog {
+public interface MessageServicePort {
 
     String getMessage(String key);
 
