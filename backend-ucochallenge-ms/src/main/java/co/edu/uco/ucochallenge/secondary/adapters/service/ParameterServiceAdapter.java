@@ -1,6 +1,6 @@
 package co.edu.uco.ucochallenge.secondary.adapters.service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -9,11 +9,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.util.Collections;
 
-import co.edu.uco.ucochallenge.crosscuting.exception.ExceptionLayer;
-import co.edu.uco.ucochallenge.crosscuting.exception.UcoChallengeException;
+import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
-import co.edu.uco.ucochallenge.crosscuting.messages.MessageKey;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.crosscuting.parameter.ParameterServicePortHolder;
 import co.edu.uco.ucochallenge.secondary.adapters.service.dto.RemoteCatalogEntry;
 import co.edu.uco.ucochallenge.secondary.ports.service.ParameterServicePort;
@@ -49,8 +49,10 @@ public class ParameterServiceAdapter implements ParameterServicePort {
         } catch (final HttpClientErrorException.NotFound notFound) {
             return TextHelper.getDefault();
         } catch (final RestClientException exception) {
-            throw UcoChallengeException.createTechnicalException(ExceptionLayer.APPLICATION,
-                    MessageKey.GENERAL_TECHNICAL_ERROR, exception);
+            throw InfrastructureException.buildFromCatalog(
+                    MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_TECHNICAL,
+                    MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_USER,
+                    Collections.emptyMap(), exception);
         }
     }
 
