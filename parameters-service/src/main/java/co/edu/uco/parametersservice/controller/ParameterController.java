@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.parametersservice.catalog.Parameter;
 import co.edu.uco.parametersservice.catalog.ParameterCatalog;
-import co.edu.uco.parametersservice.controller.dto.ParameterResponse;
 
 @RestController
 @RequestMapping("/api/v1/parameters")
 public class ParameterController {
 
         @GetMapping("/{key}")
-        public ResponseEntity<ParameterResponse> getParameter(@PathVariable String key) {
+        public ResponseEntity<Parameter> getParameter(@PathVariable String key) {
 
                 final Parameter value = ParameterCatalog.getParameterValue(key);
                 if (value == null) {
@@ -34,12 +33,12 @@ public class ParameterController {
                                 .cacheControl(CacheControl.noStore().mustRevalidate())
                                 .header("Pragma", "no-cache")
                                 .header("Expires", "0")
-                                .body(new ParameterResponse(value.getKey(), value.getValue()));
+                                .body(new Parameter(value.getKey(), value.getValue()));
 
         }
 
         @PutMapping("/{key}")
-        public ResponseEntity<ParameterResponse> modifyParameter(@PathVariable String key, @RequestBody Parameter value) {
+        public ResponseEntity<Parameter> modifyParameter(@PathVariable String key, @RequestBody Parameter value) {
 
                 value.setKey(key);
                 ParameterCatalog.synchronizeParameterValue(value);
@@ -47,7 +46,7 @@ public class ParameterController {
                                 .cacheControl(CacheControl.noStore().mustRevalidate())
                                 .header("Pragma", "no-cache")
                                 .header("Expires", "0")
-                                .body(new ParameterResponse(value.getKey(), value.getValue()));
+                                .body(new Parameter(value.getKey(), value.getValue()));
 
         }
 

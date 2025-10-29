@@ -15,14 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.messageservice.catalog.Message;
 import co.edu.uco.messageservice.catalog.MessageCatalog;
-import co.edu.uco.messageservice.controller.dto.MessageResponse;
 
 @RestController
 @RequestMapping("/api/v1/messages")
 public class MessageController {
 
         @GetMapping("/{key}")
-        public ResponseEntity<MessageResponse> getMessage(@PathVariable String key,
+        public ResponseEntity<Message> getMessage(@PathVariable String key,
                         @RequestParam Map<String, String> parameters) {
 
                 final Message value = MessageCatalog.getMessageValue(key, parameters);
@@ -38,12 +37,12 @@ public class MessageController {
                                 .cacheControl(CacheControl.noStore().mustRevalidate())
                                 .header("Pragma", "no-cache")
                                 .header("Expires", "0")
-                                .body(new MessageResponse(value.getKey(), value.getValue()));
+                                .body(new Message(value.getKey(), value.getValue()));
 
         }
 
         @PutMapping("/{key}")
-        public ResponseEntity<MessageResponse> modifyMessage(@PathVariable String key, @RequestBody Message value) {
+        public ResponseEntity<Message> modifyMessage(@PathVariable String key, @RequestBody Message value) {
 
                 value.setKey(key);
                 MessageCatalog.synchronizeMessageValue(value);
@@ -51,7 +50,7 @@ public class MessageController {
                                 .cacheControl(CacheControl.noStore().mustRevalidate())
                                 .header("Pragma", "no-cache")
                                 .header("Expires", "0")
-                                .body(new MessageResponse(value.getKey(), value.getValue()));
+                                .body(new Message(value.getKey(), value.getValue()));
 
         }
 
