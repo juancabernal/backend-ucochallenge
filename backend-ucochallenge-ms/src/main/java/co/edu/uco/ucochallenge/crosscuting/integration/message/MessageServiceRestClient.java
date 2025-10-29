@@ -1,5 +1,6 @@
 package co.edu.uco.ucochallenge.crosscuting.integration.message;
 
+import java.time.Instant;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ public class MessageServiceRestClient implements MessageCatalog {
                                 parameters.forEach(queryParams::add);
                                 builder.queryParams(queryParams);
                         }
+                        builder.queryParam("_", Instant.now().toEpochMilli());
                         final ResponseEntity<MessageResponse> response = restTemplate.getForEntity(builder.build(true).toUri(),
                                         MessageResponse.class);
                         final MessageResponse body = response.getBody();
