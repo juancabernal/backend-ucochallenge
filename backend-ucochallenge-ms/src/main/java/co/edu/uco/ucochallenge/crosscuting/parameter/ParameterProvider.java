@@ -1,5 +1,6 @@
 package co.edu.uco.ucochallenge.crosscuting.parameter;
 
+import java.util.Collections;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -23,7 +24,8 @@ public final class ParameterProvider {
         } catch (final NumberFormatException exception) {
             throw InfrastructureException.buildFromCatalog(
                     MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_TECHNICAL,
-                    MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_USER, exception);
+                    MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_USER,
+                    Collections.emptyMap(), exception);
         }
     }
 
@@ -34,7 +36,8 @@ public final class ParameterProvider {
         } catch (final PatternSyntaxException exception) {
             throw InfrastructureException.buildFromCatalog(
                     MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_TECHNICAL,
-                    MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_USER, exception);
+                    MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_USER,
+                    Collections.emptyMap(), exception);
         }
     }
 }
