@@ -2,6 +2,7 @@ package co.edu.uco.messageservice.controller;
 
 import java.util.Map;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,9 @@ public class MessageController {
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
                 }
 
-                return ResponseEntity.ok(new MessageResponse(value.getKey(), value.getValue()));
+                return ResponseEntity.ok()
+                                .cacheControl(CacheControl.noStore())
+                                .body(new MessageResponse(value.getKey(), value.getValue()));
 
         }
 
@@ -38,7 +41,9 @@ public class MessageController {
 
                 value.setKey(key);
                 MessageCatalog.synchronizeMessageValue(value);
-                return ResponseEntity.ok(new MessageResponse(value.getKey(), value.getValue()));
+                return ResponseEntity.ok()
+                                .cacheControl(CacheControl.noStore())
+                                .body(new MessageResponse(value.getKey(), value.getValue()));
 
         }
 
