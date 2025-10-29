@@ -111,8 +111,8 @@ public class UserEntity {
 		private String mobileNumber;
 		private boolean emailConfirmed;
 		private boolean mobileNumberConfirmed;
-		private boolean emailConfirmedIsDefaultValue = true;
-		private boolean mobileNumberConfirmedIsDefaultValue = true;
+                private boolean emailConfirmedIsDefaultValue = true;
+                private boolean mobileNumberConfirmedIsDefaultValue = true;
 
 		
 		
@@ -173,11 +173,21 @@ public class UserEntity {
 			return this;
 		}
 
-		public Builder mobileNumberConfirmed(final boolean mobileNumberConfirmed) {
-			this.mobileNumberConfirmed = mobileNumberConfirmed;
-			this.mobileNumberConfirmedIsDefaultValue = false;
-			return this;
-		}
+                public Builder mobileNumberConfirmed(final boolean mobileNumberConfirmed) {
+                        this.mobileNumberConfirmed = mobileNumberConfirmed;
+                        this.mobileNumberConfirmedIsDefaultValue = false;
+                        return this;
+                }
+
+                public Builder emailConfirmedIsDefaultValue(final boolean emailConfirmedIsDefaultValue) {
+                        this.emailConfirmedIsDefaultValue = emailConfirmedIsDefaultValue;
+                        return this;
+                }
+
+                public Builder mobileNumberConfirmedIsDefaultValue(final boolean mobileNumberConfirmedIsDefaultValue) {
+                        this.mobileNumberConfirmedIsDefaultValue = mobileNumberConfirmedIsDefaultValue;
+                        return this;
+                }
 
 		public UserEntity build() {
 			return new UserEntity(this);

@@ -1,13 +1,12 @@
 package co.edu.uco.ucochallenge.application.user.listUsers.interactor.impl;
 
-import org.springframework.stereotype.Service;
-
 import co.edu.uco.ucochallenge.application.Void;
 import co.edu.uco.ucochallenge.application.user.listUsers.dto.ListUsersResponseDTO;
 import co.edu.uco.ucochallenge.application.user.listUsers.interactor.ListUsersInteractor;
 import co.edu.uco.ucochallenge.application.user.listUsers.mapper.ListUsersMapper;
 import co.edu.uco.ucochallenge.application.user.listUsers.usecase.ListUsersUseCase;
-import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
