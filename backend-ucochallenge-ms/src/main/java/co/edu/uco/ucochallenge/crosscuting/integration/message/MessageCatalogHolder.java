@@ -16,6 +16,7 @@ public final class MessageCatalogHolder {
         private static final Logger LOGGER = LoggerFactory.getLogger(MessageCatalogHolder.class);
         private static volatile MessageCatalog delegate = new NoOpMessageCatalog();
         private static final Map<String, String> CACHE = new ConcurrentHashMap<>();
+        private static final ThreadLocal<Boolean> REENTRANT_GUARD = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
         private MessageCatalogHolder() {
                 // utility class
@@ -36,6 +37,14 @@ public final class MessageCatalogHolder {
                 if (cachedMessage != null) {
                         return cachedMessage;
                 }
+
+                if (Boolean.TRUE.equals(REENTRANT_GUARD.get())) {
+                        LOGGER.warn("Detected recursive attempt to resolve message '{}' from catalog. Using fallback value.",
+                                        code);
+                        return code;
+                }
+
+                REENTRANT_GUARD.set(Boolean.TRUE);
                 try {
                         final String resolvedMessage = TextHelper.getDefault(delegate.getMessage(code, safeParameters), code);
                         CACHE.put(cacheKey, resolvedMessage);
@@ -47,6 +56,8 @@ public final class MessageCatalogHolder {
                         LOGGER.error("Unexpected error while resolving message '{}' from catalog. Using fallback value.", code,
                                         exception);
                         return code;
+                } finally {
+                        REENTRANT_GUARD.remove();
                 }
         }
 
