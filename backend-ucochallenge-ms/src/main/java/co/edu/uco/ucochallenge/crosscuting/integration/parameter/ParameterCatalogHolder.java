@@ -1,15 +1,11 @@
 package co.edu.uco.ucochallenge.crosscuting.integration.parameter;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
 
 public final class ParameterCatalogHolder {
 
         private static volatile ParameterCatalog delegate = new NoOpParameterCatalog();
-        private static final Map<String, String> CACHE = new ConcurrentHashMap<>();
 
         private ParameterCatalogHolder() {
                 // utility class
@@ -17,7 +13,6 @@ public final class ParameterCatalogHolder {
 
         public static void configure(final ParameterCatalog catalog) {
                 delegate = ObjectHelper.getDefault(catalog, new NoOpParameterCatalog());
-                CACHE.clear();
         }
 
         public static String getValue(final String code) {
@@ -25,17 +20,7 @@ public final class ParameterCatalogHolder {
                         return TextHelper.EMPTY;
                 }
 
-                try {
-                        final String resolvedValue = TextHelper.getDefault(delegate.getValue(code), code);
-                        CACHE.put(code, resolvedValue);
-                        return resolvedValue;
-                } catch (final RuntimeException exception) {
-                        final String cachedValue = CACHE.get(code);
-                        if (cachedValue != null) {
-                                return cachedValue;
-                        }
-                        throw exception;
-                }
+                return TextHelper.getDefault(delegate.getValue(code), code);
         }
 
         private static final class NoOpParameterCatalog implements ParameterCatalog {
