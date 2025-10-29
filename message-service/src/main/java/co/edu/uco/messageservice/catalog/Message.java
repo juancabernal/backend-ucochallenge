@@ -2,14 +2,18 @@ package co.edu.uco.messageservice.catalog;
 
 public class Message {
 
-	private String key;
-	private String value;
-	
-	public Message(String key, String value) {
-		setKey(key);
-		setValue(value);
-	}
-	
+        private String key;
+        private String value;
+
+        public Message() {
+                // Default constructor required for serialization/deserialization frameworks
+        }
+
+        public Message(String key, String value) {
+                setKey(key);
+                setValue(value);
+        }
+
 	
 	public String getKey() {
 		return key;

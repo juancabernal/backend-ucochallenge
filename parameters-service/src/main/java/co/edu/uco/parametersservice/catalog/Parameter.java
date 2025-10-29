@@ -1,15 +1,19 @@
 package co.edu.uco.parametersservice.catalog;
 
 public class Parameter {
-	
-	private String key;
-	private String value;
-	
-	public Parameter(String key, String value) {
-		setKey(key);
-		setValue(value);
-	}
-	
+
+        private String key;
+        private String value;
+
+        public Parameter() {
+                // Default constructor required for serialization/deserialization frameworks
+        }
+
+        public Parameter(String key, String value) {
+                setKey(key);
+                setValue(value);
+        }
+
 	
 	
 	public String getKey() {
