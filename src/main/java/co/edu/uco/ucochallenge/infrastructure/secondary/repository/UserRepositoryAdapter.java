@@ -1,11 +1,13 @@
 package co.edu.uco.ucochallenge.infrastructure.secondary.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
 import co.edu.uco.ucochallenge.domain.user.model.User;
+import co.edu.uco.ucochallenge.domain.user.model.UserFilter;
 import co.edu.uco.ucochallenge.domain.user.port.out.UserRepository;
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
 import co.edu.uco.ucochallenge.infrastructure.secondary.repository.entity.UserEntity;
@@ -65,5 +67,40 @@ public class UserRepositoryAdapter implements UserRepository {
         @Override
         public List<User> findAll() {
                 return mapper.toDomainList(jpaRepository.findAll());
+        }
+
+        @Override
+        public Optional<User> findById(final UUID id) {
+                return jpaRepository.findById(id).map(mapper::toDomain);
+        }
+
+        @Override
+        public void deleteById(final UUID id) {
+                if (!jpaRepository.existsById(id)) {
+                        throw DomainException.build("user not found", "El usuario solicitado no existe.");
+                }
+                jpaRepository.deleteById(id);
+        }
+
+        @Override
+        public List<User> findByFilter(final UserFilter filter) {
+                final UUID idType = filter.hasIdType() ? filter.idType() : null;
+                final UUID homeCity = filter.hasHomeCity() ? filter.homeCity() : null;
+                final String idNumber = filter.hasIdNumber() ? filter.idNumber() : null;
+                final String firstName = filter.hasFirstName() ? filter.firstName() : null;
+                final String firstSurname = filter.hasFirstSurname() ? filter.firstSurname() : null;
+                final String email = filter.hasEmail() ? filter.email() : null;
+                final String mobileNumber = filter.hasMobileNumber() ? filter.mobileNumber() : null;
+
+                final List<UserEntity> entities = jpaRepository.search(
+                                idType,
+                                homeCity,
+                                idNumber,
+                                firstName,
+                                firstSurname,
+                                email,
+                                mobileNumber);
+
+                return mapper.toDomainList(entities);
         }
 }
