@@ -59,7 +59,11 @@ public class UserEntity {
 
 	private boolean mobileNumberConfirmedIsDefaultValue;
 
-	protected UserEntity() {
+        public static Builder builder() {
+                return new Builder();
+        }
+
+        protected UserEntity() {
 		setId(UUIDHelper.getDefault());
 		setIdType(new IdTypeEntity());
 		setIdNumber(TextHelper.getDefault());
