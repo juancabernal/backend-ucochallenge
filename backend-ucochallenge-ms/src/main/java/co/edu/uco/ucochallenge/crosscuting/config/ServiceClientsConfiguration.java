@@ -13,7 +13,6 @@ import co.edu.uco.ucochallenge.crosscuting.integration.message.property.ServiceE
 import co.edu.uco.ucochallenge.crosscuting.integration.http.NoCacheSimpleClientHttpRequestFactory;
 import co.edu.uco.ucochallenge.crosscuting.integration.parameter.ParameterCatalog;
 import co.edu.uco.ucochallenge.crosscuting.integration.parameter.ParameterCatalogHolder;
-import co.edu.uco.ucochallenge.crosscuting.integration.parameter.ParameterServiceRestClient;
 
 @Configuration
 @EnableConfigurationProperties(ServiceEndpointsProperties.class)

@@ -11,7 +11,6 @@ import co.edu.uco.ucochallenge.crosscuting.exception.ApplicationException;
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
 import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.exception.UcoChallengeException;
-import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageProvider;
 import co.edu.uco.ucochallenge.infrastructure.primary.controller.response.ApiErrorResponse;
 
