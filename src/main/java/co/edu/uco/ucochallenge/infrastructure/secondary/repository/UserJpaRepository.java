@@ -19,6 +19,12 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
 
         boolean existsByMobileNumber(String mobileNumber);
 
+        boolean existsByEmailIgnoreCaseAndIdNot(String email, UUID id);
+
+        boolean existsByIdTypeIdAndIdNumberAndIdNot(UUID idType, String idNumber, UUID id);
+
+        boolean existsByMobileNumberAndIdNot(String mobileNumber, UUID id);
+
         @Query("""
                         SELECT u FROM UserEntity u
                         WHERE (:idType IS NULL OR u.idType.id = :idType)

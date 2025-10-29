@@ -15,6 +15,12 @@ public interface UserRepository {
 
         boolean existsByMobileNumber(String mobileNumber);
 
+        boolean existsByEmailExcludingId(UUID id, String email);
+
+        boolean existsByIdTypeAndIdNumberExcludingId(UUID id, UUID idType, String idNumber);
+
+        boolean existsByMobileNumberExcludingId(UUID id, String mobileNumber);
+
         User save(User user);
 
         List<User> findAll();
