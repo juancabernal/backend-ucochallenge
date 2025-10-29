@@ -11,9 +11,15 @@ public final class TextHelper {
 		return EMPTY;
 	}
 
-	public static String getDefault(final String value) {
-		return ObjectHelper.getDefault(value, getDefault());
-	}
+       public static String getDefault(final String value) {
+               return ObjectHelper.getDefault(value, getDefault());
+       }
+
+       public static String getDefault(final String value, final String defaultValue) {
+               final String safeDefault = ObjectHelper.getDefault(defaultValue, getDefault());
+               final String safeValue = getDefault(value);
+               return safeValue.isEmpty() ? safeDefault : safeValue;
+       }
 
 	public static String getDefaultWithTrim(final String value) {
 		return getDefault(value).trim();
