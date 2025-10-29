@@ -33,11 +33,6 @@ public final class MessageCatalogHolder {
                 }
                 final Map<String, String> safeParameters = ObjectHelper.getDefault(parameters, Collections.emptyMap());
                 final String cacheKey = buildCacheKey(code, safeParameters);
-                final String cachedMessage = CACHE.get(cacheKey);
-                if (cachedMessage != null) {
-                        return cachedMessage;
-                }
-
                 if (Boolean.TRUE.equals(REENTRANT_GUARD.get())) {
                         LOGGER.warn("Detected recursive attempt to resolve message '{}' from catalog. Using fallback value.",
                                         code);
@@ -50,12 +45,13 @@ public final class MessageCatalogHolder {
                         CACHE.put(cacheKey, resolvedMessage);
                         return resolvedMessage;
                 } catch (final UcoChallengeException exception) {
-                        LOGGER.warn("Unable to resolve message '{}' from catalog. Using fallback value.", code, exception);
-                        return code;
-                } catch (final RuntimeException exception) {
-                        LOGGER.error("Unexpected error while resolving message '{}' from catalog. Using fallback value.", code,
+                        LOGGER.warn("Unable to resolve message '{}' from catalog. Using cached value or fallback.", code,
                                         exception);
-                        return code;
+                        return CACHE.getOrDefault(cacheKey, code);
+                } catch (final RuntimeException exception) {
+                        LOGGER.error("Unexpected error while resolving message '{}' from catalog. Using cached value or fallback.",
+                                        code, exception);
+                        return CACHE.getOrDefault(cacheKey, code);
                 } finally {
                         REENTRANT_GUARD.remove();
                 }
