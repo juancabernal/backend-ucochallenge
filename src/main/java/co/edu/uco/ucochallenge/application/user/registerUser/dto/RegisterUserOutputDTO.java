@@ -1,4 +1,9 @@
 package co.edu.uco.ucochallenge.application.user.registerUser.dto;
 
-public class RegisterUserOutputDTO {
+import java.util.UUID;
+
+public record RegisterUserOutputDTO(
+                UUID userId,
+                String fullName,
+                String email) {
 }
