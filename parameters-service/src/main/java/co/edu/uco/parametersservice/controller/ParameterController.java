@@ -11,30 +11,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.parametersservice.catalog.Parameter;
 import co.edu.uco.parametersservice.catalog.ParameterCatalog;
+import co.edu.uco.parametersservice.controller.dto.ParameterResponse;
 
 @RestController
-@RequestMapping("/parameters/api/v1/parameters")
+@RequestMapping("/api/v1/parameters")
 public class ParameterController {
-	
-	@GetMapping("/{key}")
-	public ResponseEntity<Parameter> getParameter(@PathVariable String key) {
-		
-		var value = ParameterCatalog.getParameterValue(key);
-		
-		
-		return new ResponseEntity<>(value, (value == null) ?  HttpStatus.NOT_FOUND : HttpStatus.OK);
-		
-	}
-	
-	@PutMapping("/{key}")
-	public ResponseEntity<Parameter> modifyParameter(@PathVariable String key, @RequestBody Parameter value) {
-		
-		value.setKey(key);
-		ParameterCatalog.synchronizeParameterValue(value);
-		return new ResponseEntity<>(value, HttpStatus.OK);
-		
-	}
-	
-	
+
+        @GetMapping("/{key}")
+        public ResponseEntity<ParameterResponse> getParameter(@PathVariable String key) {
+
+                final Parameter value = ParameterCatalog.getParameterValue(key);
+                if (value == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                }
+
+                return ResponseEntity.ok(new ParameterResponse(value.getKey(), value.getValue()));
+
+        }
+
+        @PutMapping("/{key}")
+        public ResponseEntity<ParameterResponse> modifyParameter(@PathVariable String key, @RequestBody Parameter value) {
+
+                value.setKey(key);
+                ParameterCatalog.synchronizeParameterValue(value);
+                return ResponseEntity.ok(new ParameterResponse(value.getKey(), value.getValue()));
+
+        }
+
 }
 
