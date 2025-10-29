@@ -10,6 +10,7 @@ import co.edu.uco.ucochallenge.domain.user.model.User;
 import co.edu.uco.ucochallenge.domain.user.model.UserFilter;
 import co.edu.uco.ucochallenge.domain.user.port.out.UserRepository;
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.infrastructure.secondary.repository.entity.UserEntity;
 import co.edu.uco.ucochallenge.infrastructure.secondary.repository.mapper.UserEntityMapper;
 
@@ -69,13 +70,13 @@ public class UserRepositoryAdapter implements UserRepository {
 
         private void validateReferences(final User user) {
                 if (!idTypeJpaRepository.existsById(user.idType())) {
-                        throw DomainException.build("idType does not exist",
-                                        "El tipo de identificación proporcionado no existe.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.ID_TYPE_NOT_FOUND_TECHNICAL,
+                                        MessageCodes.Domain.User.ID_TYPE_NOT_FOUND_USER);
                 }
 
                 if (!cityJpaRepository.existsById(user.homeCity())) {
-                        throw DomainException.build("homeCity does not exist",
-                                        "La ciudad de residencia proporcionada no existe.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.HOME_CITY_NOT_FOUND_TECHNICAL,
+                                        MessageCodes.Domain.User.HOME_CITY_NOT_FOUND_USER);
                 }
         }
 
@@ -92,7 +93,8 @@ public class UserRepositoryAdapter implements UserRepository {
         @Override
         public void deleteById(final UUID id) {
                 if (!jpaRepository.existsById(id)) {
-                        throw DomainException.build("user not found", "El usuario solicitado no existe.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.NOT_FOUND_TECHNICAL,
+                                        MessageCodes.Domain.User.NOT_FOUND_USER);
                 }
                 jpaRepository.deleteById(id);
         }
