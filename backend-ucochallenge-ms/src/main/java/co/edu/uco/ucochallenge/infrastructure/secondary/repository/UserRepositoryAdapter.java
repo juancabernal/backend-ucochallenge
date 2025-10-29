@@ -6,10 +6,11 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.domain.user.model.User;
 import co.edu.uco.ucochallenge.domain.user.model.UserFilter;
 import co.edu.uco.ucochallenge.domain.user.port.out.UserRepository;
-import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
 import co.edu.uco.ucochallenge.infrastructure.secondary.repository.entity.UserEntity;
 import co.edu.uco.ucochallenge.infrastructure.secondary.repository.mapper.UserEntityMapper;
 
