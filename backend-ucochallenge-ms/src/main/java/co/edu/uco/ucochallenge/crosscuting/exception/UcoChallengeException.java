@@ -1,6 +1,10 @@
 package co.edu.uco.ucochallenge.crosscuting.exception;
 
+import java.util.Collections;
+import java.util.Map;
+
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
+import co.edu.uco.ucochallenge.crosscuting.integration.message.MessageCatalogHolder;
 
 public class UcoChallengeException extends RuntimeException {
 
@@ -24,6 +28,27 @@ public class UcoChallengeException extends RuntimeException {
         }
 
         public static UcoChallengeException build(final String message) {
+                return new UcoChallengeException(message, message, null);
+        }
+
+        public static UcoChallengeException buildFromCatalog(final String technicalCode, final String userCode,
+                        final Map<String, String> parameters, final Throwable cause) {
+                final String technicalMessage = MessageCatalogHolder.getMessage(technicalCode, parameters);
+                final String userMessage = MessageCatalogHolder.getMessage(userCode, parameters);
+                return new UcoChallengeException(technicalMessage, userMessage, cause);
+        }
+
+        public static UcoChallengeException buildFromCatalog(final String technicalCode, final String userCode,
+                        final Map<String, String> parameters) {
+                return buildFromCatalog(technicalCode, userCode, parameters, null);
+        }
+
+        public static UcoChallengeException buildFromCatalog(final String technicalCode, final String userCode) {
+                return buildFromCatalog(technicalCode, userCode, Collections.emptyMap(), null);
+        }
+
+        public static UcoChallengeException buildFromCatalog(final String messageCode) {
+                final String message = MessageCatalogHolder.getMessage(messageCode);
                 return new UcoChallengeException(message, message, null);
         }
 

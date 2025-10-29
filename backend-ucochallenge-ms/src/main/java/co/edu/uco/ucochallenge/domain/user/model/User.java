@@ -1,11 +1,15 @@
 package co.edu.uco.ucochallenge.domain.user.model;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.UUIDHelper;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
+import co.edu.uco.ucochallenge.crosscuting.parameters.ParameterCodes;
+import co.edu.uco.ucochallenge.crosscuting.parameters.ParameterProvider;
 
 public record User(
                 UUID id,
@@ -20,11 +24,6 @@ public record User(
                 String mobileNumber,
                 boolean emailConfirmed,
                 boolean mobileNumberConfirmed) {
-
-        private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$");
-        private static final Pattern ID_NUMBER_PATTERN = Pattern.compile("^[0-9]+$");
-        private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
-        private static final Pattern MOBILE_PATTERN = Pattern.compile("^[0-9]{10}$");
 
         public User {
                 id = normalizeId(id);
@@ -50,7 +49,8 @@ public record User(
         private static UUID validateIdType(final UUID idType) {
                 final UUID normalized = UUIDHelper.getDefault(idType);
                 if (UUIDHelper.getDefault().equals(normalized)) {
-                        throw DomainException.build("idType is mandatory", "El tipo de identificación es obligatorio y debe ser válido.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.ID_TYPE_MANDATORY_TECHNICAL,
+                                        MessageCodes.Domain.User.ID_TYPE_MANDATORY_USER);
                 }
                 return normalized;
         }
@@ -58,13 +58,20 @@ public record User(
         private static String validateIdNumber(final String idNumber) {
                 final String normalized = TextHelper.getDefaultWithTrim(idNumber);
                 if (TextHelper.isEmpty(normalized)) {
-                        throw DomainException.build("idNumber is empty", "El número de identificación es obligatorio.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.ID_NUMBER_EMPTY_TECHNICAL,
+                                        MessageCodes.Domain.User.ID_NUMBER_EMPTY_USER);
                 }
-                if (!ID_NUMBER_PATTERN.matcher(normalized).matches()) {
-                        throw DomainException.build("idNumber has invalid characters", "El número de identificación solo puede contener dígitos.");
+                if (!getIdNumberPattern().matcher(normalized).matches()) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.ID_NUMBER_INVALID_CHARS_TECHNICAL,
+                                        MessageCodes.Domain.User.ID_NUMBER_INVALID_CHARS_USER);
                 }
-                if (normalized.length() < 5 || normalized.length() > 20) {
-                        throw DomainException.build("idNumber length out of range", "El número de identificación debe tener entre 5 y 20 dígitos.");
+                final int minLength = ParameterProvider.getInteger(ParameterCodes.User.ID_NUMBER_MIN_LENGTH);
+                final int maxLength = ParameterProvider.getInteger(ParameterCodes.User.ID_NUMBER_MAX_LENGTH);
+                if (normalized.length() < minLength || normalized.length() > maxLength) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.ID_NUMBER_LENGTH_TECHNICAL,
+                                        MessageCodes.Domain.User.ID_NUMBER_LENGTH_USER,
+                                        Map.of("minLength", String.valueOf(minLength),
+                                                        "maxLength", String.valueOf(maxLength)));
                 }
                 return normalized;
         }
@@ -72,7 +79,9 @@ public record User(
         private static String validateMandatoryName(final String name, final String fieldName) {
                 final String normalized = TextHelper.getDefaultWithTrim(name);
                 if (TextHelper.isEmpty(normalized)) {
-                        throw DomainException.build(fieldName + " is empty", "El " + fieldName + " es obligatorio.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.MANDATORY_FIELD_TECHNICAL,
+                                        MessageCodes.Domain.User.MANDATORY_FIELD_USER,
+                                        Map.of("fieldName", fieldName));
                 }
                 validateNameFormat(normalized, fieldName);
                 return normalized;
@@ -88,18 +97,26 @@ public record User(
         }
 
         private static void validateNameFormat(final String value, final String fieldName) {
-                if (!NAME_PATTERN.matcher(value).matches()) {
-                        throw DomainException.build(fieldName + " has invalid characters", "El " + fieldName + " solo puede contener letras y espacios.");
+                if (!getNamePattern().matcher(value).matches()) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.FIELD_INVALID_CHARS_TECHNICAL,
+                                        MessageCodes.Domain.User.FIELD_INVALID_CHARS_USER,
+                                        Map.of("fieldName", fieldName));
                 }
-                if (value.length() < 2 || value.length() > 40) {
-                        throw DomainException.build(fieldName + " length out of range", "El " + fieldName + " debe tener entre 2 y 40 caracteres.");
+                final int minLength = ParameterProvider.getInteger(ParameterCodes.User.NAME_MIN_LENGTH);
+                final int maxLength = ParameterProvider.getInteger(ParameterCodes.User.NAME_MAX_LENGTH);
+                if (value.length() < minLength || value.length() > maxLength) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.FIELD_LENGTH_TECHNICAL,
+                                        MessageCodes.Domain.User.FIELD_LENGTH_USER,
+                                        Map.of("fieldName", fieldName, "minLength", String.valueOf(minLength),
+                                                        "maxLength", String.valueOf(maxLength)));
                 }
         }
 
         private static UUID validateHomeCity(final UUID homeCity) {
                 final UUID normalized = UUIDHelper.getDefault(homeCity);
                 if (UUIDHelper.getDefault().equals(normalized)) {
-                        throw DomainException.build("homeCity is mandatory", "La ciudad de residencia es obligatoria y debe ser válida.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.HOME_CITY_MANDATORY_TECHNICAL,
+                                        MessageCodes.Domain.User.HOME_CITY_MANDATORY_USER);
                 }
                 return normalized;
         }
@@ -107,13 +124,20 @@ public record User(
         private static String validateEmail(final String email) {
                 final String normalized = TextHelper.getDefaultWithTrim(email).toLowerCase();
                 if (TextHelper.isEmpty(normalized)) {
-                        throw DomainException.build("email is empty", "El correo electrónico es obligatorio.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.EMAIL_EMPTY_TECHNICAL,
+                                        MessageCodes.Domain.User.EMAIL_EMPTY_USER);
                 }
-                if (normalized.length() < 10 || normalized.length() > 100) {
-                        throw DomainException.build("email length out of range", "El correo electrónico debe tener entre 10 y 100 caracteres.");
+                final int minLength = ParameterProvider.getInteger(ParameterCodes.User.EMAIL_MIN_LENGTH);
+                final int maxLength = ParameterProvider.getInteger(ParameterCodes.User.EMAIL_MAX_LENGTH);
+                if (normalized.length() < minLength || normalized.length() > maxLength) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.EMAIL_LENGTH_TECHNICAL,
+                                        MessageCodes.Domain.User.EMAIL_LENGTH_USER,
+                                        Map.of("minLength", String.valueOf(minLength),
+                                                        "maxLength", String.valueOf(maxLength)));
                 }
-                if (!EMAIL_PATTERN.matcher(normalized).matches()) {
-                        throw DomainException.build("email format invalid", "El formato del correo electrónico no es válido.");
+                if (!getEmailPattern().matcher(normalized).matches()) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.EMAIL_FORMAT_INVALID_TECHNICAL,
+                                        MessageCodes.Domain.User.EMAIL_FORMAT_INVALID_USER);
                 }
                 return normalized;
         }
@@ -121,11 +145,32 @@ public record User(
         private static String validateMobileNumber(final String mobileNumber) {
                 final String normalized = TextHelper.getDefaultWithTrim(mobileNumber);
                 if (TextHelper.isEmpty(normalized)) {
-                        throw DomainException.build("mobile number is empty", "El número de teléfono móvil es obligatorio.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.MOBILE_EMPTY_TECHNICAL,
+                                        MessageCodes.Domain.User.MOBILE_EMPTY_USER);
                 }
-                if (!MOBILE_PATTERN.matcher(normalized).matches()) {
-                        throw DomainException.build("mobile number format invalid", "El número de teléfono móvil debe contener exactamente 10 dígitos.");
+                final int expectedLength = ParameterProvider.getInteger(ParameterCodes.User.MOBILE_LENGTH);
+                final Pattern pattern = getMobilePattern();
+                if (!pattern.matcher(normalized).matches()) {
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.MOBILE_FORMAT_INVALID_TECHNICAL,
+                                        MessageCodes.Domain.User.MOBILE_FORMAT_INVALID_USER,
+                                        Map.of("expectedLength", String.valueOf(expectedLength)));
                 }
                 return normalized;
+        }
+
+        private static Pattern getNamePattern() {
+                return ParameterProvider.getPattern(ParameterCodes.User.NAME_PATTERN);
+        }
+
+        private static Pattern getIdNumberPattern() {
+                return ParameterProvider.getPattern(ParameterCodes.User.ID_NUMBER_PATTERN);
+        }
+
+        private static Pattern getEmailPattern() {
+                return ParameterProvider.getPattern(ParameterCodes.User.EMAIL_PATTERN);
+        }
+
+        private static Pattern getMobilePattern() {
+                return ParameterProvider.getPattern(ParameterCodes.User.MOBILE_PATTERN);
         }
 }

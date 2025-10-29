@@ -1,24 +1,21 @@
 package co.edu.uco.ucochallenge.application.user.registerUser.usecase.impl;
 
 import org.springframework.stereotype.Service;
-import co.edu.uco.ucochallenge.domain.user.port.out.UserRepository;
+
 import co.edu.uco.ucochallenge.application.user.registerUser.usecase.RegisterUserUseCase;
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.domain.user.model.User;
-
+import co.edu.uco.ucochallenge.domain.user.port.out.UserRepository;
 
 @Service
 public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
 
         private final UserRepository repository;
 
-
-
         public RegisterUserUseCaseImpl(final UserRepository repository) {
                 this.repository = repository;
         }
-
-
 
         @Override
         public User execute(final User domain) {
@@ -28,16 +25,19 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
 
         private void validateUniqueness(final User domain) {
                 if (repository.existsByEmail(domain.email())) {
-                        throw DomainException.build("email already registered", "El correo electrónico ya se encuentra registrado.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.EMAIL_ALREADY_REGISTERED_TECHNICAL,
+                                        MessageCodes.Domain.User.EMAIL_ALREADY_REGISTERED_USER);
                 }
 
                 if (repository.existsByIdTypeAndIdNumber(domain.idType(), domain.idNumber())) {
-                        throw DomainException.build("idNumber already registered", "Ya existe un usuario registrado con el documento proporcionado.");
+                        throw DomainException.buildFromCatalog(
+                                        MessageCodes.Domain.User.ID_NUMBER_ALREADY_REGISTERED_TECHNICAL,
+                                        MessageCodes.Domain.User.ID_NUMBER_ALREADY_REGISTERED_USER);
                 }
 
                 if (repository.existsByMobileNumber(domain.mobileNumber())) {
-                        throw DomainException.build("mobileNumber already registered", "El número de teléfono móvil ya se encuentra registrado.");
+                        throw DomainException.buildFromCatalog(MessageCodes.Domain.User.MOBILE_ALREADY_REGISTERED_TECHNICAL,
+                                        MessageCodes.Domain.User.MOBILE_ALREADY_REGISTERED_USER);
                 }
         }
-
 }
