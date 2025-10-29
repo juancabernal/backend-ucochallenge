@@ -1,10 +1,12 @@
 package co.edu.uco.ucochallenge.crosscuting.integration.parameter;
 
+import java.time.Instant;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
@@ -27,7 +29,10 @@ public class ParameterServiceRestClient implements ParameterCatalog {
         public String getValue(final String code) {
                 try {
                         final ResponseEntity<ParameterResponse> response = restTemplate.getForEntity(
-                                        properties.resolveParameterUrl(code), ParameterResponse.class);
+                                        UriComponentsBuilder.fromHttpUrl(properties.resolveParameterUrl(code))
+                                                        .queryParam("_", Instant.now().toEpochMilli())
+                                                        .build(true).toUri(),
+                                        ParameterResponse.class);
                         final ParameterResponse body = response.getBody();
                         if (body == null || TextHelper.isEmpty(body.value())) {
                                 return TextHelper.getDefault(code);
