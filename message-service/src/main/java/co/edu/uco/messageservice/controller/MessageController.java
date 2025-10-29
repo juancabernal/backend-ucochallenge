@@ -2,6 +2,7 @@ package co.edu.uco.messageservice.controller;
 
 import java.util.Map;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +27,18 @@ public class MessageController {
 
                 final Message value = MessageCatalog.getMessageValue(key, parameters);
                 if (value == null) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                        .cacheControl(CacheControl.noStore().mustRevalidate())
+                                        .header("Pragma", "no-cache")
+                                        .header("Expires", "0")
+                                        .build();
                 }
 
-                return ResponseEntity.ok(new MessageResponse(value.getKey(), value.getValue()));
+                return ResponseEntity.ok()
+                                .cacheControl(CacheControl.noStore().mustRevalidate())
+                                .header("Pragma", "no-cache")
+                                .header("Expires", "0")
+                                .body(new MessageResponse(value.getKey(), value.getValue()));
 
         }
 
@@ -38,7 +47,11 @@ public class MessageController {
 
                 value.setKey(key);
                 MessageCatalog.synchronizeMessageValue(value);
-                return ResponseEntity.ok(new MessageResponse(value.getKey(), value.getValue()));
+                return ResponseEntity.ok()
+                                .cacheControl(CacheControl.noStore().mustRevalidate())
+                                .header("Pragma", "no-cache")
+                                .header("Expires", "0")
+                                .body(new MessageResponse(value.getKey(), value.getValue()));
 
         }
 
