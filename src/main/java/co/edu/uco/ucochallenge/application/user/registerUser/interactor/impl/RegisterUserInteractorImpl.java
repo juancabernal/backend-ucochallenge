@@ -2,29 +2,32 @@ package co.edu.uco.ucochallenge.application.user.registerUser.interactor.impl;
 
 import org.springframework.stereotype.Service;
 
-import co.edu.uco.ucochallenge.application.Void;
 import co.edu.uco.ucochallenge.application.user.registerUser.interactor.RegisterUserInteractor;
 import co.edu.uco.ucochallenge.application.user.registerUser.dto.RegisterUserInputDTO;
 import co.edu.uco.ucochallenge.application.user.registerUser.usecase.RegisterUserUseCase;
-import co.edu.uco.ucochallenge.application.user.registerUser.domain.RegisterUserDomain;
+import co.edu.uco.ucochallenge.application.user.registerUser.dto.RegisterUserOutputDTO;
+import co.edu.uco.ucochallenge.application.user.registerUser.mapper.RegisterUserMapper;
+import co.edu.uco.ucochallenge.domain.user.model.User;
 import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
 public class RegisterUserInteractorImpl implements RegisterUserInteractor {
 
-	private RegisterUserUseCase useCase;
+        private final RegisterUserUseCase useCase;
+        private final RegisterUserMapper mapper;
 
-	public RegisterUserInteractorImpl(RegisterUserUseCase useCase) {
-		this.useCase = useCase;
-	}
+        public RegisterUserInteractorImpl(final RegisterUserUseCase useCase, final RegisterUserMapper mapper) {
+                this.useCase = useCase;
+                this.mapper = mapper;
+        }
 
-	@Override
-	public Void execute(final RegisterUserInputDTO dto) {
-
-		// DataMapper/MapStruct could be used here
-		RegisterUserDomain registerUserDomain = null;
-		return useCase.execute(registerUserDomain); // Mapping from DTO to Domain is needed
-	}
+        @Override
+        public RegisterUserOutputDTO execute(final RegisterUserInputDTO dto) {
+                final RegisterUserInputDTO normalizedDTO = RegisterUserInputDTO.normalize(dto);
+                final User user = mapper.toDomain(normalizedDTO);
+                final User registeredUser = useCase.execute(user);
+                return mapper.toOutput(registeredUser);
+        }
 
 }

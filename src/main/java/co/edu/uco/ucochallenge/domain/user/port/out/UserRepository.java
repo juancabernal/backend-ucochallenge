@@ -1,12 +1,19 @@
 package co.edu.uco.ucochallenge.domain.user.port.out;
-import co.edu.uco.ucochallenge.infrastructure.secondary.repository.entity.UserEntity;
 
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import co.edu.uco.ucochallenge.domain.user.model.User;
 
-@Repository
-public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+public interface UserRepository {
 
+        boolean existsByEmail(String email);
+
+        boolean existsByIdTypeAndIdNumber(UUID idType, String idNumber);
+
+        boolean existsByMobileNumber(String mobileNumber);
+
+        User save(User user);
+
+        List<User> findAll();
 }
