@@ -24,7 +24,14 @@ public final class ParameterCatalogHolder {
                 if (TextHelper.isEmpty(code)) {
                         return TextHelper.EMPTY;
                 }
-                return CACHE.computeIfAbsent(code, delegate::getValue);
+                final String cachedValue = CACHE.get(code);
+                if (cachedValue != null) {
+                        return cachedValue;
+                }
+                final String rawValue = delegate.getValue(code);
+                final String resolvedValue = TextHelper.isEmpty(rawValue) ? code : rawValue;
+                CACHE.put(code, resolvedValue);
+                return resolvedValue;
         }
 
         private static final class NoOpParameterCatalog implements ParameterCatalog {
