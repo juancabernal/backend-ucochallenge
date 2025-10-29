@@ -3,7 +3,7 @@ package co.edu.uco.ucochallenge.crosscuting.exception;
 import java.util.Collections;
 import java.util.Map;
 
-import co.edu.uco.ucochallenge.crosscuting.integration.message.MessageCatalogHolder;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageProvider;
 
 public final class ApplicationException extends UcoChallengeException {
 
@@ -28,8 +28,8 @@ public final class ApplicationException extends UcoChallengeException {
 
         public static ApplicationException buildFromCatalog(final String technicalCode, final String userCode,
                         final Map<String, String> parameters, final Throwable cause) {
-                final String technicalMessage = MessageCatalogHolder.getMessage(technicalCode, parameters);
-                final String userMessage = MessageCatalogHolder.getMessage(userCode, parameters);
+                final String technicalMessage = MessageProvider.getMessage(technicalCode, parameters);
+                final String userMessage = MessageProvider.getMessage(userCode, parameters);
                 return new ApplicationException(technicalMessage, userMessage, cause);
         }
 
@@ -43,7 +43,7 @@ public final class ApplicationException extends UcoChallengeException {
         }
 
         public static ApplicationException buildFromCatalog(final String messageCode) {
-                final String message = MessageCatalogHolder.getMessage(messageCode);
+                final String message = MessageProvider.getMessage(messageCode);
                 return new ApplicationException(message, message, null);
         }
 }
