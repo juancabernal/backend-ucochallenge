@@ -31,8 +31,7 @@ public final class MessageCatalogHolder {
                 if (cachedMessage != null) {
                         return cachedMessage;
                 }
-                final String rawMessage = delegate.getMessage(code, safeParameters);
-                final String resolvedMessage = TextHelper.isEmpty(rawMessage) ? code : rawMessage;
+                final String resolvedMessage = TextHelper.getDefault(delegate.getMessage(code, safeParameters), code);
                 CACHE.put(cacheKey, resolvedMessage);
                 return resolvedMessage;
         }

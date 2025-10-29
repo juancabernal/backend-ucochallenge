@@ -28,8 +28,7 @@ public final class ParameterCatalogHolder {
                 if (cachedValue != null) {
                         return cachedValue;
                 }
-                final String rawValue = delegate.getValue(code);
-                final String resolvedValue = TextHelper.isEmpty(rawValue) ? code : rawValue;
+                final String resolvedValue = TextHelper.getDefault(delegate.getValue(code), code);
                 CACHE.put(code, resolvedValue);
                 return resolvedValue;
         }
