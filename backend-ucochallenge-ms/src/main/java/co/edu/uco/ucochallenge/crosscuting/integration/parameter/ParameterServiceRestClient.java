@@ -1,5 +1,7 @@
 package co.edu.uco.ucochallenge.crosscuting.integration.parameter;
 
+import java.util.Collections;
+
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +29,7 @@ public class ParameterServiceRestClient implements ParameterCatalog {
         final String normalizedKey = TextHelper.getDefault(key);
 
         try {
-            final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl())
+            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
                     .pathSegment("api", "v1", "parameters", normalizedKey);
             final ParameterResponse response = restTemplate.getForObject(builder.build(true).toUri(), ParameterResponse.class);
             if (response == null || TextHelper.isEmpty(response.value())) {
@@ -44,12 +46,14 @@ public class ParameterServiceRestClient implements ParameterCatalog {
     private InfrastructureException buildUnavailableException(final Exception cause) {
         return InfrastructureException.buildFromCatalog(
                 MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_TECHNICAL,
-                MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_USER, cause);
+                MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_USER,
+                Collections.emptyMap(), cause);
     }
 
     private InfrastructureException buildInvalidResponseException(final Exception cause) {
         return InfrastructureException.buildFromCatalog(
                 MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_TECHNICAL,
-                MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_USER, cause);
+                MessageCodes.Infrastructure.ParameterService.INVALID_RESPONSE_USER,
+                Collections.emptyMap(), cause);
     }
 }

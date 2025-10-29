@@ -37,7 +37,7 @@ public class MessageServiceRestClient implements MessageCatalog {
         final Map<String, String> normalizedParameters = ObjectHelper.getDefault(parameters, Collections.emptyMap());
 
         try {
-            final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl())
+            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(properties.getBaseUrl())
                     .pathSegment("api", "v1", "messages", normalizedKey);
             normalizedParameters.forEach(builder::queryParam);
 
@@ -52,11 +52,13 @@ public class MessageServiceRestClient implements MessageCatalog {
             }
             throw InfrastructureException.buildFromCatalog(
                     MessageCodes.Infrastructure.MessageService.UNAVAILABLE_TECHNICAL,
-                    MessageCodes.Infrastructure.MessageService.UNAVAILABLE_USER, exception);
+                    MessageCodes.Infrastructure.MessageService.UNAVAILABLE_USER,
+                    Collections.emptyMap(), exception);
         } catch (final RestClientException exception) {
             throw InfrastructureException.buildFromCatalog(
                     MessageCodes.Infrastructure.MessageService.UNAVAILABLE_TECHNICAL,
-                    MessageCodes.Infrastructure.MessageService.UNAVAILABLE_USER, exception);
+                    MessageCodes.Infrastructure.MessageService.UNAVAILABLE_USER,
+                    Collections.emptyMap(), exception);
         }
     }
 }
