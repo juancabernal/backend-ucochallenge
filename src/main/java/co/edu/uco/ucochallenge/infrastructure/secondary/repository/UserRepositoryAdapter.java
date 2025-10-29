@@ -45,6 +45,21 @@ public class UserRepositoryAdapter implements UserRepository {
         }
 
         @Override
+        public boolean existsByEmailExcludingId(final UUID id, final String email) {
+                return jpaRepository.existsByEmailIgnoreCaseAndIdNot(email, id);
+        }
+
+        @Override
+        public boolean existsByIdTypeAndIdNumberExcludingId(final UUID id, final UUID idType, final String idNumber) {
+                return jpaRepository.existsByIdTypeIdAndIdNumberAndIdNot(idType, idNumber, id);
+        }
+
+        @Override
+        public boolean existsByMobileNumberExcludingId(final UUID id, final String mobileNumber) {
+                return jpaRepository.existsByMobileNumberAndIdNot(mobileNumber, id);
+        }
+
+        @Override
         public User save(final User user) {
                 validateReferences(user);
                 final UserEntity entity = mapper.toEntity(user);
