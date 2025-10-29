@@ -11,8 +11,8 @@ import co.edu.uco.ucochallenge.crosscuting.exception.ApplicationException;
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
 import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.exception.UcoChallengeException;
-import co.edu.uco.ucochallenge.crosscuting.integration.message.MessageCatalogHolder;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageProvider;
 import co.edu.uco.ucochallenge.infrastructure.primary.controller.response.ApiErrorResponse;
 
 @ControllerAdvice
@@ -54,10 +54,10 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiErrorResponse> handleUnexpectedException(final Exception exception) {
-                final String technicalMessage = MessageCatalogHolder
+                final String technicalMessage = MessageProvider
                                 .getMessage(MessageCodes.Application.UNEXPECTED_ERROR_TECHNICAL);
                 LOGGER.error(technicalMessage, exception);
-                final String userMessage = MessageCatalogHolder
+                final String userMessage = MessageProvider
                                 .getMessage(MessageCodes.Application.UNEXPECTED_ERROR_USER);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(ApiErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), userMessage,
