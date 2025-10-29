@@ -4,11 +4,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import co.edu.uco.ucochallenge.crosscuting.exception.UcoChallengeException;
 import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
 
 public final class MessageCatalogHolder {
 
+        private static final Logger LOGGER = LoggerFactory.getLogger(MessageCatalogHolder.class);
         private static volatile MessageCatalog delegate = new NoOpMessageCatalog();
         private static final Map<String, String> CACHE = new ConcurrentHashMap<>();
 
@@ -31,9 +36,18 @@ public final class MessageCatalogHolder {
                 if (cachedMessage != null) {
                         return cachedMessage;
                 }
-                final String resolvedMessage = TextHelper.getDefault(delegate.getMessage(code, safeParameters), code);
-                CACHE.put(cacheKey, resolvedMessage);
-                return resolvedMessage;
+                try {
+                        final String resolvedMessage = TextHelper.getDefault(delegate.getMessage(code, safeParameters), code);
+                        CACHE.put(cacheKey, resolvedMessage);
+                        return resolvedMessage;
+                } catch (final UcoChallengeException exception) {
+                        LOGGER.warn("Unable to resolve message '{}' from catalog. Using fallback value.", code, exception);
+                        return code;
+                } catch (final RuntimeException exception) {
+                        LOGGER.error("Unexpected error while resolving message '{}' from catalog. Using fallback value.", code,
+                                        exception);
+                        return code;
+                }
         }
 
         public static String getMessage(final String code) {
