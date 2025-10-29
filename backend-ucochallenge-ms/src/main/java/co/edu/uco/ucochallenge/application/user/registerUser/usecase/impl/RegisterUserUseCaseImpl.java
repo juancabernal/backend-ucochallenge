@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import co.edu.uco.ucochallenge.application.user.registerUser.usecase.RegisterUserUseCase;
 import co.edu.uco.ucochallenge.crosscuting.exception.DomainException;
+import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.domain.user.model.User;
 import co.edu.uco.ucochallenge.domain.user.port.out.UserRepository;
 

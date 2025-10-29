@@ -6,13 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
+import co.edu.uco.ucochallenge.crosscuting.integration.http.NoCacheSimpleClientHttpRequestFactory;
 import co.edu.uco.ucochallenge.crosscuting.integration.message.MessageCatalog;
 import co.edu.uco.ucochallenge.crosscuting.integration.message.MessageCatalogHolder;
 import co.edu.uco.ucochallenge.crosscuting.integration.message.MessageServiceRestClient;
 import co.edu.uco.ucochallenge.crosscuting.integration.message.property.ServiceEndpointsProperties;
-import co.edu.uco.ucochallenge.crosscuting.integration.http.NoCacheSimpleClientHttpRequestFactory;
 import co.edu.uco.ucochallenge.crosscuting.integration.parameter.ParameterCatalog;
 import co.edu.uco.ucochallenge.crosscuting.integration.parameter.ParameterCatalogHolder;
+import co.edu.uco.ucochallenge.crosscuting.integration.parameter.ParameterServiceRestClient;
 
 @Configuration
 @EnableConfigurationProperties(ServiceEndpointsProperties.class)

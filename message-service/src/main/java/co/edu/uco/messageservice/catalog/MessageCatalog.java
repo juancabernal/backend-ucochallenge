@@ -74,6 +74,10 @@ public class MessageCatalog {
                                 "El servicio de parámetros no está disponible en este momento.");
                 register("infrastructure.parameterService.unavailable.user",
                                 "No fue posible recuperar los parámetros de validación. Inténtalo de nuevo más tarde.");
+                register("infrastructure.parameterService.invalidResponse.technical",
+                                "Se recibió una respuesta inválida del servicio de parámetros.");
+                register("infrastructure.parameterService.invalidResponse.user",
+                                "No fue posible procesar la configuración solicitada. Inténtalo nuevamente más tarde.");
 
                 register("domain.user.idType.mandatory.technical", "El tipo de identificación del usuario es obligatorio.");
                 register("domain.user.idType.mandatory.user", "Debe seleccionar un tipo de identificación.");
