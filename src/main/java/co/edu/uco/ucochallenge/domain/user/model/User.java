@@ -30,10 +30,10 @@ public record User(
                 id = normalizeId(id);
                 idType = validateIdType(idType);
                 idNumber = validateIdNumber(idNumber);
-                firstName = validateName(firstName, "primer nombre");
-                secondName = validateName(secondName, "segundo nombre");
-                firstSurname = validateName(firstSurname, "primer apellido");
-                secondSurname = validateName(secondSurname, "segundo apellido");
+                firstName = validateMandatoryName(firstName, "primer nombre");
+                secondName = validateOptionalName(secondName, "segundo nombre");
+                firstSurname = validateMandatoryName(firstSurname, "primer apellido");
+                secondSurname = validateOptionalName(secondSurname, "segundo apellido");
                 homeCity = validateHomeCity(homeCity);
                 email = validateEmail(email);
                 mobileNumber = validateMobileNumber(mobileNumber);
@@ -69,18 +69,31 @@ public record User(
                 return normalized;
         }
 
-        private static String validateName(final String name, final String fieldName) {
+        private static String validateMandatoryName(final String name, final String fieldName) {
                 final String normalized = TextHelper.getDefaultWithTrim(name);
                 if (TextHelper.isEmpty(normalized)) {
                         throw DomainException.build(fieldName + " is empty", "El " + fieldName + " es obligatorio.");
                 }
-                if (!NAME_PATTERN.matcher(normalized).matches()) {
+                validateNameFormat(normalized, fieldName);
+                return normalized;
+        }
+
+        private static String validateOptionalName(final String name, final String fieldName) {
+                final String normalized = TextHelper.getDefaultWithTrim(name);
+                if (TextHelper.isEmpty(normalized)) {
+                        return TextHelper.getDefault();
+                }
+                validateNameFormat(normalized, fieldName);
+                return normalized;
+        }
+
+        private static void validateNameFormat(final String value, final String fieldName) {
+                if (!NAME_PATTERN.matcher(value).matches()) {
                         throw DomainException.build(fieldName + " has invalid characters", "El " + fieldName + " solo puede contener letras y espacios.");
                 }
-                if (normalized.length() < 2 || normalized.length() > 40) {
+                if (value.length() < 2 || value.length() > 40) {
                         throw DomainException.build(fieldName + " length out of range", "El " + fieldName + " debe tener entre 2 y 40 caracteres.");
                 }
-                return normalized;
         }
 
         private static UUID validateHomeCity(final UUID homeCity) {
