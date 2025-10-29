@@ -1,5 +1,6 @@
 package co.edu.uco.parametersservice.controller;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +23,18 @@ public class ParameterController {
 
                 final Parameter value = ParameterCatalog.getParameterValue(key);
                 if (value == null) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                        .cacheControl(CacheControl.noStore().mustRevalidate())
+                                        .header("Pragma", "no-cache")
+                                        .header("Expires", "0")
+                                        .build();
                 }
 
-                return ResponseEntity.ok(new ParameterResponse(value.getKey(), value.getValue()));
+                return ResponseEntity.ok()
+                                .cacheControl(CacheControl.noStore().mustRevalidate())
+                                .header("Pragma", "no-cache")
+                                .header("Expires", "0")
+                                .body(new ParameterResponse(value.getKey(), value.getValue()));
 
         }
 
@@ -34,7 +43,11 @@ public class ParameterController {
 
                 value.setKey(key);
                 ParameterCatalog.synchronizeParameterValue(value);
-                return ResponseEntity.ok(new ParameterResponse(value.getKey(), value.getValue()));
+                return ResponseEntity.ok()
+                                .cacheControl(CacheControl.noStore().mustRevalidate())
+                                .header("Pragma", "no-cache")
+                                .header("Expires", "0")
+                                .body(new ParameterResponse(value.getKey(), value.getValue()));
 
         }
 
