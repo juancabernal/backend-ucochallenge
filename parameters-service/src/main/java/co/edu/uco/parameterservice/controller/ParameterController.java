@@ -1,8 +1,8 @@
-package co.edu.uco.messageservice.controller;
+package co.edu.uco.parameterservice.controller;
 
-import co.edu.uco.messageservice.model.Message;
-import co.edu.uco.messageservice.model.MessageRequest;
-import co.edu.uco.messageservice.service.ReactiveMessageService;
+import co.edu.uco.parameterservice.model.Parameter;
+import co.edu.uco.parameterservice.model.ParameterRequest;
+import co.edu.uco.parameterservice.service.ReactiveParameterService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,42 +17,39 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/**
- * Controlador REST totalmente reactivo basado en WebFlux.
- */
 @RestController
-@RequestMapping("/messages")
+@RequestMapping("/parameters")
 @Validated
-public class MessageController {
+public class ParameterController {
 
-    private final ReactiveMessageService service;
+    private final ReactiveParameterService service;
 
-    public MessageController(ReactiveMessageService service) {
+    public ParameterController(ReactiveParameterService service) {
         this.service = service;
     }
 
     @GetMapping
-    public Flux<Message> findAll() {
+    public Flux<Parameter> findAll() {
         return service.findAll();
     }
 
     @GetMapping("/{key}")
-    public Mono<ResponseEntity<Message>> findByKey(@PathVariable String key) {
+    public Mono<ResponseEntity<Parameter>> findByKey(@PathVariable String key) {
         return service.findByKey(key)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Mono<ResponseEntity<Message>> create(@Valid @RequestBody Mono<Message> request) {
-        return request.flatMap(message -> service.upsert(message.key(), message.value()))
+    public Mono<ResponseEntity<Parameter>> create(@Valid @RequestBody Mono<Parameter> request) {
+        return request.flatMap(parameter -> service.upsert(parameter.key(), parameter.value()))
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.badRequest().build()));
     }
 
     @PutMapping("/{key}")
-    public Mono<ResponseEntity<Message>> upsert(@PathVariable String key,
-                                                @Valid @RequestBody Mono<MessageRequest> request) {
+    public Mono<ResponseEntity<Parameter>> upsert(@PathVariable String key,
+                                                  @Valid @RequestBody Mono<ParameterRequest> request) {
         return request.flatMap(body -> service.upsert(key, body.value()))
                 .map(ResponseEntity::ok)
                 .switchIfEmpty(Mono.just(ResponseEntity.badRequest().build()));
