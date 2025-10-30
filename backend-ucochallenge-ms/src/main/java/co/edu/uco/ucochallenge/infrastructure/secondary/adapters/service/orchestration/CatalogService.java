@@ -1,4 +1,4 @@
-	package co.edu.uco.ucochallenge.secondary.adapters.service.orchestration;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.orchestration;
 
 import java.util.Map;
 import java.util.Optional;
@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import co.edu.uco.ucochallenge.secondary.adapters.service.client.MessageCatalogClient;
-import co.edu.uco.ucochallenge.secondary.adapters.service.client.ParameterCatalogClient;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.client.MessageCatalogClient;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.client.ParameterCatalogClient;
 
 @Service
 public class CatalogService {

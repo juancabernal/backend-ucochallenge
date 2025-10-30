@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
-import co.edu.uco.ucochallenge.secondary.ports.service.ParameterServicePort;
+import co.edu.uco.ucochallenge.infrastructure.secondary.ports.service.ParameterServicePort;
 
 public final class ParameterServicePortHolder {
 

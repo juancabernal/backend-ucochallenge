@@ -1,4 +1,4 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service.client;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.client;
 
 import java.util.Optional;
 
@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
-import co.edu.uco.ucochallenge.secondary.adapters.service.dto.RemoteCatalogEntry;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.dto.RemoteCatalogEntry;
 import reactor.core.publisher.Mono;
 
 import org.springframework.web.reactive.function.client.WebClient;

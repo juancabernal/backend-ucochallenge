@@ -1,4 +1,4 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service;
 
 import java.util.Collections;
 import java.util.Map;
@@ -16,8 +16,8 @@ import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageServicePortHolder;
-import co.edu.uco.ucochallenge.secondary.adapters.service.orchestration.CatalogService;
-import co.edu.uco.ucochallenge.secondary.ports.service.MessageServicePort;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.orchestration.CatalogService;
+import co.edu.uco.ucochallenge.infrastructure.secondary.ports.service.MessageServicePort;
 
 @Component
 public class MessageServiceAdapter implements MessageServicePort {

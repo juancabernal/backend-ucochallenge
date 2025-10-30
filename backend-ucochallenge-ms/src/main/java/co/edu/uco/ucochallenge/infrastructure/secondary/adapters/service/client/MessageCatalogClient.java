@@ -1,4 +1,4 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service.client;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.client;
 
 import java.util.Collections;
 import java.util.Map;
@@ -13,7 +13,7 @@ import org.springframework.web.util.UriBuilder;
 
 import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
-import co.edu.uco.ucochallenge.secondary.adapters.service.dto.RemoteCatalogEntry;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.dto.RemoteCatalogEntry;
 import reactor.core.publisher.Mono;
 
 import org.springframework.web.reactive.function.client.WebClient;

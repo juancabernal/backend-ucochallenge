@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import co.edu.uco.ucochallenge.crosscuting.helper.ObjectHelper;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
-import co.edu.uco.ucochallenge.secondary.ports.service.MessageServicePort;
+import co.edu.uco.ucochallenge.infrastructure.secondary.ports.service.MessageServicePort;
 
 public final class MessageServicePortHolder {
 

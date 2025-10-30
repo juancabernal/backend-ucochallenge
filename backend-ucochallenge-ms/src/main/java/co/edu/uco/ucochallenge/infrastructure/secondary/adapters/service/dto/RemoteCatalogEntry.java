@@ -1,4 +1,4 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service.dto;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
