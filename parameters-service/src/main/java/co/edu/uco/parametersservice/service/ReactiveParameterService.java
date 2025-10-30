@@ -1,5 +1,6 @@
 package co.edu.uco.parametersservice.service;
 
+import co.edu.uco.parametersservice.catalog.CatalogEvent;
 import co.edu.uco.parametersservice.catalog.ReactiveParameterCatalog;
 import co.edu.uco.parametersservice.model.Parameter;
 import org.springframework.stereotype.Service;
@@ -10,8 +11,15 @@ import reactor.core.publisher.Mono;
 public class ReactiveParameterService {
 
     private final ReactiveParameterCatalog catalog;
+    private final Flux<Parameter> liveCatalog;
+
     public ReactiveParameterService(ReactiveParameterCatalog catalog) {
         this.catalog = catalog;
+        this.liveCatalog = catalog.liveView().share();
+    }
+
+    public Flux<Parameter> streamAll() {
+        return liveCatalog;
     }
 
     public Flux<Parameter> findAll() {
@@ -30,7 +38,7 @@ public class ReactiveParameterService {
         return catalog.delete(key);
     }
 
-    public Flux<ReactiveParameterCatalog.CatalogEvent<Parameter>> events() {
-        return catalog.events();
+    public Flux<CatalogEvent<Parameter>> changes() {
+        return catalog.changes();
     }
 }

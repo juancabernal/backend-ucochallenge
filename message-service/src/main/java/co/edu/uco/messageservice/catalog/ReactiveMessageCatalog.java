@@ -6,27 +6,22 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Catálogo reactivo en memoria. Usa una {@link ConcurrentHashMap} como
- * almacenamiento principal y un {@link Sinks.Many} para notificar cambios.
- *
- * La idea es que cada operación escriba en memoria y publique un evento. Los
- * siguientes GET leen del mapa (ya actualizado) y, si alguien necesita
- * reaccionar en caliente, puede suscribirse al flujo de eventos.
+ * In-memory reactive catalog that stores {@link Message} instances and emits
+ * change notifications for any consumer interested in being synchronized with
+ * the latest data.
  */
 public class ReactiveMessageCatalog {
 
     private final ConcurrentHashMap<String, Message> storage = new ConcurrentHashMap<>();
-    private final Sinks.Many<CatalogEvent<Message>> updates = Sinks.many().replay().latest();
+    private final Sinks.Many<CatalogEvent<Message>> sink = Sinks.many().multicast().directAllOrNothing();
+    private final Flux<CatalogEvent<Message>> changeStream = sink.asFlux();
 
     public ReactiveMessageCatalog() {
         preload();
-        // Emitimos el estado inicial para nuevos suscriptores.
-        storage.values().forEach(message ->
-            updates.tryEmitNext(new CatalogEvent<>(CatalogEventType.CREATED, message))
-        );
     }
 
     private void preload() {
@@ -38,43 +33,61 @@ public class ReactiveMessageCatalog {
         defaults.forEach(message -> storage.put(message.key(), message));
     }
 
+    /**
+     * Retrieve a message by its key. Emits empty when the key does not exist.
+     */
     public Mono<Message> findByKey(String key) {
         return Mono.defer(() -> Mono.justOrEmpty(storage.get(key)));
     }
 
+    /**
+     * Retrieve all messages reflecting the most up-to-date snapshot.
+     */
     public Flux<Message> findAll() {
         return Flux.defer(() -> Flux.fromIterable(storage.values()));
     }
 
+    /**
+     * Save or update a message. The returned {@link Mono} completes with the
+     * latest saved value and triggers a change event.
+     */
     public Mono<Message> save(Message message) {
-        return Mono.fromCallable(() -> {
+        return Mono.fromSupplier(() -> {
             Message previous = storage.put(message.key(), message);
-            CatalogEventType type = previous == null ? CatalogEventType.CREATED : CatalogEventType.UPDATED;
-            updates.tryEmitNext(new CatalogEvent<>(type, message));
+            CatalogEvent.CatalogEventType type = previous == null
+                ? CatalogEvent.CatalogEventType.CREATED
+                : CatalogEvent.CatalogEventType.UPDATED;
+            sink.tryEmitNext(new CatalogEvent<>(type, message));
             return message;
         });
     }
 
+    /**
+     * Delete a message if present and notify subscribers.
+     */
     public Mono<Void> delete(String key) {
         return Mono.fromRunnable(() -> {
             Message removed = storage.remove(key);
             if (removed != null) {
-                updates.tryEmitNext(new CatalogEvent<>(CatalogEventType.DELETED, removed));
+                sink.tryEmitNext(new CatalogEvent<>(CatalogEvent.CatalogEventType.DELETED, removed));
             }
-        }).then();
+        });
     }
 
-    public Flux<CatalogEvent<Message>> events() {
-        return updates.asFlux();
+    /**
+     * A hot stream that emits every catalog change in real time.
+     */
+    public Flux<CatalogEvent<Message>> changes() {
+        return changeStream;
     }
 
-    /** Evento simple que indica el tipo de cambio y la carga asociada. */
-    public record CatalogEvent<T>(CatalogEventType type, T payload) {
-    }
-
-    public enum CatalogEventType {
-        CREATED,
-        UPDATED,
-        DELETED
+    /**
+     * Provides a convenient view that emits the current snapshot and then any
+     * subsequent changes as soon as they occur.
+     */
+    public Flux<Message> liveView() {
+        return Flux.defer(() -> Flux.fromIterable(storage.entrySet()))
+            .map(Map.Entry::getValue)
+            .concatWith(changes().map(CatalogEvent::payload));
     }
 }

@@ -6,23 +6,21 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implementación sencilla del catálogo reactivo de parámetros. Mantiene los
- * datos en memoria y emite un evento cada vez que cambia algo para que otros
- * componentes puedan reaccionar inmediatamente si lo desean.
+ * Local reactive catalog that keeps configuration parameters and notifies
+ * subscribers of any change.
  */
 public class ReactiveParameterCatalog {
 
     private final ConcurrentHashMap<String, Parameter> storage = new ConcurrentHashMap<>();
-    private final Sinks.Many<CatalogEvent<Parameter>> updates = Sinks.many().replay().latest();
+    private final Sinks.Many<CatalogEvent<Parameter>> sink = Sinks.many().multicast().directAllOrNothing();
+    private final Flux<CatalogEvent<Parameter>> changeStream = sink.asFlux();
 
     public ReactiveParameterCatalog() {
         preload();
-        storage.values().forEach(parameter ->
-            updates.tryEmitNext(new CatalogEvent<>(CatalogEventType.CREATED, parameter))
-        );
     }
 
     private void preload() {
@@ -43,10 +41,12 @@ public class ReactiveParameterCatalog {
     }
 
     public Mono<Parameter> save(Parameter parameter) {
-        return Mono.fromCallable(() -> {
+        return Mono.fromSupplier(() -> {
             Parameter previous = storage.put(parameter.key(), parameter);
-            CatalogEventType type = previous == null ? CatalogEventType.CREATED : CatalogEventType.UPDATED;
-            updates.tryEmitNext(new CatalogEvent<>(type, parameter));
+            CatalogEvent.CatalogEventType type = previous == null
+                ? CatalogEvent.CatalogEventType.CREATED
+                : CatalogEvent.CatalogEventType.UPDATED;
+            sink.tryEmitNext(new CatalogEvent<>(type, parameter));
             return parameter;
         });
     }
@@ -55,21 +55,18 @@ public class ReactiveParameterCatalog {
         return Mono.fromRunnable(() -> {
             Parameter removed = storage.remove(key);
             if (removed != null) {
-                updates.tryEmitNext(new CatalogEvent<>(CatalogEventType.DELETED, removed));
+                sink.tryEmitNext(new CatalogEvent<>(CatalogEvent.CatalogEventType.DELETED, removed));
             }
-        }).then();
+        });
     }
 
-    public Flux<CatalogEvent<Parameter>> events() {
-        return updates.asFlux();
+    public Flux<CatalogEvent<Parameter>> changes() {
+        return changeStream;
     }
 
-    public record CatalogEvent<T>(CatalogEventType type, T payload) {
-    }
-
-    public enum CatalogEventType {
-        CREATED,
-        UPDATED,
-        DELETED
+    public Flux<Parameter> liveView() {
+        return Flux.defer(() -> Flux.fromIterable(storage.entrySet()))
+            .map(Map.Entry::getValue)
+            .concatWith(changes().map(CatalogEvent::payload));
     }
 }

@@ -2,7 +2,7 @@ package co.edu.uco.messageservice.controller;
 
 import co.edu.uco.messageservice.model.Message;
 import co.edu.uco.messageservice.service.ReactiveMessageService;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,19 +51,21 @@ public class MessageController {
             .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Message> streamChanges() {
+        return service.streamAll();
+    }
+
     @PostMapping
-    public Mono<ResponseEntity<Message>> create(@RequestBody Mono<Message> request) {
-        return request
-            .flatMap(service::save)
-            .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved));
+    public Mono<ResponseEntity<Message>> create(@RequestBody Message request) {
+        return service.save(request)
+            .map(saved -> ResponseEntity.status(201).body(saved));
     }
 
     @PutMapping("/{key}")
-    public Mono<ResponseEntity<Message>> update(@PathVariable String key, @RequestBody Mono<Message> request) {
-        return request
-            .map(body -> new Message(key, body.value()))
-            .flatMap(service::save)
-            .map(ResponseEntity::ok);
+    public Mono<ResponseEntity<Message>> update(@PathVariable String key, @RequestBody Message request) {
+        Message message = new Message(key, request.value());
+        return service.save(message).map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{key}")

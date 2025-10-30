@@ -2,7 +2,7 @@ package co.edu.uco.parametersservice.controller;
 
 import co.edu.uco.parametersservice.model.Parameter;
 import co.edu.uco.parametersservice.service.ReactiveParameterService;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,19 +51,21 @@ public class ParameterController {
             .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Parameter> streamChanges() {
+        return service.streamAll();
+    }
+
     @PostMapping
-    public Mono<ResponseEntity<Parameter>> create(@RequestBody Mono<Parameter> request) {
-        return request
-            .flatMap(service::save)
-            .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved));
+    public Mono<ResponseEntity<Parameter>> create(@RequestBody Parameter request) {
+        return service.save(request)
+            .map(saved -> ResponseEntity.status(201).body(saved));
     }
 
     @PutMapping("/{key}")
-    public Mono<ResponseEntity<Parameter>> update(@PathVariable String key, @RequestBody Mono<Parameter> request) {
-        return request
-            .map(body -> new Parameter(key, body.value()))
-            .flatMap(service::save)
-            .map(ResponseEntity::ok);
+    public Mono<ResponseEntity<Parameter>> update(@PathVariable String key, @RequestBody Parameter request) {
+        Parameter parameter = new Parameter(key, request.value());
+        return service.save(parameter).map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{key}")
