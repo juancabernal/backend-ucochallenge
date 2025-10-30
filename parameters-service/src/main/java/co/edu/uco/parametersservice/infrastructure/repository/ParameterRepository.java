@@ -11,9 +11,9 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface ParameterRepository extends ReactiveCrudRepository<ParameterEntity, UUID> {
 
-    Mono<ParameterEntity> findByCode(String code);
+    Mono<ParameterEntity> findByKey(String key);
 
-    Mono<Boolean> existsByCode(String code);
+    Mono<Boolean> existsByKey(String key);
 
-    Mono<Void> deleteByCode(String code);
+    Mono<Void> deleteByKey(String key);
 }

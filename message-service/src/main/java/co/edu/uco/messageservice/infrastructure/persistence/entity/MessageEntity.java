@@ -15,7 +15,9 @@ public class MessageEntity {
 
     private String code;
 
-    private String value;
+    private String text;
+
+    private String language;
 
     @Column("updated_at")
     private Instant updatedAt;
@@ -36,12 +38,20 @@ public class MessageEntity {
         this.code = code;
     }
 
-    public String getValue() {
-        return value;
+    public String getText() {
+        return text;
+}
+
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public Instant getUpdatedAt() {

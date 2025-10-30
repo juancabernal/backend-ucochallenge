@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY,
     code TEXT NOT NULL UNIQUE,
-    value TEXT NOT NULL,
+    text TEXT NOT NULL,
+    language TEXT NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
