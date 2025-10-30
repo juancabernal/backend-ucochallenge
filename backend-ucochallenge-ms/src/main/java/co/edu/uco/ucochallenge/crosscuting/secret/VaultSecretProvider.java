@@ -2,6 +2,7 @@ package co.edu.uco.ucochallenge.crosscuting.secret;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,11 +14,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.vault.VaultException;
 import org.springframework.vault.core.VaultKeyValueOperations;
 import org.springframework.vault.core.VaultKeyValueOperationsSupport.KeyValueBackend;
-import org.springframework.vault.core.VaultKeyValueOperationsSupport.KeyValueResponseSupport;
 import org.springframework.vault.core.VaultTemplate;
+import org.springframework.vault.support.VaultResponseSupport;
 
 /**
- * HashiCorp Vault backed implementation of {@link SecretProvider}.
+ * HashiCorp Vault-backed implementation of {@link SecretProvider}.
  */
 @Component
 public class VaultSecretProvider implements SecretProvider {
@@ -29,10 +30,12 @@ public class VaultSecretProvider implements SecretProvider {
     private final Environment environment;
     private final Map<String, String> cache = new ConcurrentHashMap<>();
 
-    public VaultSecretProvider(final VaultTemplate vaultTemplate,
+    public VaultSecretProvider(
+            final VaultTemplate vaultTemplate,
             final Environment environment,
             @Value("${spring.cloud.vault.kv.backend}") final String backend,
             @Value("${spring.cloud.vault.kv.default-context}") final String context) {
+
         this.operations = vaultTemplate.opsForKeyValue(backend, KeyValueBackend.KV_2);
         this.context = context;
         this.environment = environment;
@@ -44,32 +47,24 @@ public class VaultSecretProvider implements SecretProvider {
     }
 
     private String resolveSecret(final String key) {
-        final Optional<String> vaultValue = readFromVault(key);
-        if (vaultValue.isPresent()) {
-            return vaultValue.get();
-        }
-
-        final String fallback = environment.getProperty(key);
-        if (fallback != null) {
-            logger.warn("Secret '{}' not found in Vault context '{}', using fallback from environment", key, context);
-            return fallback;
-        }
-
-        throw new IllegalStateException(String.format("Secret '%s' not found in Vault context '%s'", key, context));
+        return readFromVault(key)
+                .or(() -> Optional.ofNullable(environment.getProperty(key)))
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format("Secret '%s' not found in Vault context '%s'", key, context)));
     }
 
     private Optional<String> readFromVault(final String key) {
         try {
-            final KeyValueResponseSupport<Map<String, Object>> response = operations.get(context, Map.class);
-            final Map<String, Object> data = response == null ? Collections.emptyMap() : response.getData();
-            if (data == null || !data.containsKey(key)) {
-                return Optional.empty();
-            }
+            VaultResponseSupport<Map<String, Object>> response = operations.get(context);
+            Map<String, Object> data = response != null && response.getData() != null
+                    ? response.getData()
+                    : Collections.emptyMap();
 
-            final Object value = data.get(key);
-            return Optional.ofNullable(value == null ? null : String.valueOf(value));
-        } catch (final VaultException exception) {
-            logger.error("Unable to read secrets from Vault context '{}': {}", context, exception.getMessage());
+            Object value = data.get(key);
+            return Optional.ofNullable(Objects.toString(value, null));
+
+        } catch (VaultException e) {
+            logger.error("Unable to read secrets from Vault context '{}': {}", context, e.getMessage());
             return Optional.empty();
         }
     }
