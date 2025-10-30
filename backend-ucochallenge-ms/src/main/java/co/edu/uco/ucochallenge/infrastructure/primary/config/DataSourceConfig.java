@@ -2,11 +2,13 @@ package co.edu.uco.ucochallenge.infrastructure.primary.config;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -17,6 +19,7 @@ import co.edu.uco.ucochallenge.domain.secret.port.SecretProviderPort;
 @EnableConfigurationProperties(DataSourceProperties.class)
 public class DataSourceConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(DataSourceConfig.class);
     private static final String SECRET_DB_USERNAME = "db-username";
     private static final String SECRET_DB_PASSWORD = "db-password";
 
@@ -31,20 +34,47 @@ public class DataSourceConfig {
     @Primary
     @Bean
     public DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        final String url = properties.url();
-        final String driverClassName = properties.driverClassName();
+        final HikariConfig config = new HikariConfig();
 
-        Assert.hasText(url, "Property 'spring.datasource.url' must not be empty");
-        Assert.hasText(driverClassName, "Property 'spring.datasource.driver-class-name' must not be empty");
+        final String url = properties.getUrl();
+        if (StringUtils.hasText(url)) {
+            config.setJdbcUrl(url);
+        } else {
+            log.warn("Property 'spring.datasource.url' is empty. Verify the active profile configuration.");
+        }
 
-        config.setJdbcUrl(url);
-        config.setUsername(secretProvider.getSecret(SECRET_DB_USERNAME));
-        config.setPassword(secretProvider.getSecret(SECRET_DB_PASSWORD));
-        config.setDriverClassName(driverClassName);
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(1);
-        config.setPoolName("UcoHikariPool");
+        final String driverClassName = properties.getDriverClassName();
+        if (StringUtils.hasText(driverClassName)) {
+            config.setDriverClassName(driverClassName);
+        } else {
+            log.warn("Property 'spring.datasource.driver-class-name' is empty. Relying on JDBC auto-detection.");
+        }
+
+        final String username = secretProvider.getSecret(SECRET_DB_USERNAME);
+        if (!StringUtils.hasText(username)) {
+            log.warn("Secret '{}' resolved as empty. Database connections might fail.", SECRET_DB_USERNAME);
+        }
+        config.setUsername(username);
+
+        final String password = secretProvider.getSecret(SECRET_DB_PASSWORD);
+        if (!StringUtils.hasText(password)) {
+            log.warn("Secret '{}' resolved as empty. Database connections might fail.", SECRET_DB_PASSWORD);
+        }
+        config.setPassword(password);
+
+        final DataSourceProperties.Hikari hikari = properties.getHikari();
+        if (hikari.getMaximumPoolSize() != null) {
+            config.setMaximumPoolSize(hikari.getMaximumPoolSize());
+        }
+        if (hikari.getMinimumIdle() != null) {
+            config.setMinimumIdle(hikari.getMinimumIdle());
+        }
+        if (hikari.getConnectionTimeout() != null) {
+            config.setConnectionTimeout(hikari.getConnectionTimeout());
+        }
+        if (StringUtils.hasText(hikari.getPoolName())) {
+            config.setPoolName(hikari.getPoolName());
+        }
 
         return new HikariDataSource(config);
     }
