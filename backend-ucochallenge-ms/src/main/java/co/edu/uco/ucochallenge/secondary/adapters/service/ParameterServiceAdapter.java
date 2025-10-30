@@ -1,33 +1,27 @@
 package co.edu.uco.ucochallenge.secondary.adapters.service;
 
+import java.util.Collections;
+
 import jakarta.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import java.util.Collections;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.crosscuting.parameter.ParameterServicePortHolder;
-import co.edu.uco.ucochallenge.secondary.adapters.service.dto.RemoteCatalogEntry;
+import co.edu.uco.ucochallenge.secondary.adapters.service.orchestration.CatalogService;
 import co.edu.uco.ucochallenge.secondary.ports.service.ParameterServicePort;
 
 @Component
 public class ParameterServiceAdapter implements ParameterServicePort {
 
-    private final RestTemplate restTemplate;
-    private final String endpoint;
+    private final CatalogService catalogService;
 
-    public ParameterServiceAdapter(final RestTemplate restTemplate,
-            @Value("${services.parameters.base-url}") final String endpoint) {
-        this.restTemplate = restTemplate;
-        this.endpoint = endpoint;
+    public ParameterServiceAdapter(final CatalogService catalogService) {
+        this.catalogService = catalogService;
     }
 
     @PostConstruct
@@ -42,24 +36,16 @@ public class ParameterServiceAdapter implements ParameterServicePort {
         }
 
         try {
-            final ResponseEntity<RemoteCatalogEntry> response = restTemplate.getForEntity(resolveUrl(key),
-                    RemoteCatalogEntry.class);
-            final RemoteCatalogEntry body = response.getBody();
-            return body == null || TextHelper.isEmpty(body.value()) ? TextHelper.getDefault() : body.value();
-        } catch (final HttpClientErrorException.NotFound notFound) {
+            return catalogService.findParameterValue(key)
+                    .filter(value -> !TextHelper.isEmpty(value))
+                    .orElse(TextHelper.getDefault());
+        } catch (final WebClientResponseException.NotFound notFound) {
             return TextHelper.getDefault();
-        } catch (final RestClientException exception) {
+        } catch (final WebClientRequestException | WebClientResponseException exception) {
             throw InfrastructureException.buildFromCatalog(
                     MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_TECHNICAL,
                     MessageCodes.Infrastructure.ParameterService.UNAVAILABLE_USER,
                     Collections.emptyMap(), exception);
         }
-    }
-
-    private String resolveUrl(final String key) {
-        return UriComponentsBuilder.fromUriString(endpoint)
-                .pathSegment(key)
-                .build(true)
-                .toUriString();
     }
 }
