@@ -1,9 +1,11 @@
 spring:
   application:
     name: UcoChallenge
+
   datasource:
-    url: jdbc:postgresql://dpg-d3n8p524d50c73f4am9g-a.oregon-postgres.render.com:5432/software2terraxs
-    driver-class-name: org.postgresql.Driver
+    # 🔹 URL y driver necesarios para que Spring Boot inicialice el DataSource correctamente
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://dpg-d3n8p524d50c73f4am9g-a.oregon-postgres.render.com:5432/software2terraxs}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
 
 server:
   port: 8083
@@ -18,9 +20,10 @@ azure:
   keyvault:
     url: https://uco-vault-secrets.vault.azure.net/
 
+# 🔹 Definición de secretos para ser obtenidos desde Azure Key Vault o variables de entorno
 secrets:
-  db-username: ${DB_USERNAME:software2terraxs_user}
-  db-password: ${DB_PASSWORD:8ICAjMPafawkrgj8AxFoXntuLlL0iGbF}
+  db-username: ${DB_USERNAME}
+  db-password: ${DB_PASSWORD}
 
 logging:
   level:

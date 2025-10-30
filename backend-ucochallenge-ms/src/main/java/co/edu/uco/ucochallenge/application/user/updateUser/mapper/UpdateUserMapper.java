@@ -15,7 +15,7 @@ import co.edu.uco.ucochallenge.domain.user.model.User;
 
 @Mapper(componentModel = "spring")
 public interface UpdateUserMapper {
-
+	
     default User toDomain(final UpdateUserInteractor.Command command) {
         final var payload = command.payload();
         return new User(
