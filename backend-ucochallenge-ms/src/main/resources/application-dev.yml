@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ucochallenge}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
+
+azure:
+  keyvault:
+    url: ${AZURE_KEY_VAULT_URL:}
+
+secrets:
+  db-username: ${DB_USERNAME:postgres}
+  db-password: ${DB_PASSWORD:postgres}
