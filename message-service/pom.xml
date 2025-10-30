@@ -74,6 +74,11 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>co.edu.uco</groupId>
+			<artifactId>eureka-server</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
