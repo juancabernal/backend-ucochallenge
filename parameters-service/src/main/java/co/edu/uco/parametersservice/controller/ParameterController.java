@@ -73,16 +73,13 @@ public class ParameterController {
                         .body(saved));
     }
 
-    @DeleteMapping("/{key}")
-    public Mono<ResponseEntity<Void>> deleteParameter(@PathVariable String key) {
-        return service.delete(key)
-                .map(removed -> ResponseEntity.noContent()
-                        .cacheControl(NO_CACHE)
-                        .header("Pragma", "no-cache")
-                        .header("Expires", "0")
-                        .build())
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
+	/*
+	 * @DeleteMapping("/{key}") public Mono<ResponseEntity<Void>>
+	 * deleteParameter(@PathVariable String key) { return service.delete(key)
+	 * .map(removed -> ResponseEntity.noContent() .cacheControl(NO_CACHE)
+	 * .header("Pragma", "no-cache") .header("Expires", "0") .build())
+	 * .defaultIfEmpty(ResponseEntity.notFound().build()); }
+	 */
 
     @GetMapping(value = "/stream", produces = "text/event-stream")
     public Flux<ServerSentEvent<Parameter>> streamUpdates() {

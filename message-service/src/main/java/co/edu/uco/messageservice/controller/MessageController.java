@@ -73,23 +73,18 @@ public class MessageController {
                         .body(saved));
     }
 
-    @DeleteMapping("/{key}")
-    public Mono<ResponseEntity<Void>> deleteMessage(@PathVariable String key) {
-        return service.delete(key)
-                .map(removed -> ResponseEntity.noContent()
-                        .cacheControl(NO_CACHE)
-                        .header("Pragma", "no-cache")
-                        .header("Expires", "0")
-                        .build())
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping(value = "/stream", produces = "text/event-stream")
-    public Flux<ServerSentEvent<Message>> streamUpdates() {
-        return service.listenChanges()
-                .filter(change -> change.type() != CatalogEventType.DELETED)
-                .map(change -> ServerSentEvent.<Message>builder(change.payload())
-                        .event(change.type().name())
-                        .build());
-    }
+	/*
+	 * @DeleteMapping("/{key}") public Mono<ResponseEntity<Void>>
+	 * deleteMessage(@PathVariable String key) { return service.delete(key)
+	 * .map(removed -> ResponseEntity.noContent() .cacheControl(NO_CACHE)
+	 * .header("Pragma", "no-cache") .header("Expires", "0") .build())
+	 * .defaultIfEmpty(ResponseEntity.notFound().build()); }
+	 * 
+	 * @GetMapping(value = "/stream", produces = "text/event-stream") public
+	 * Flux<ServerSentEvent<Message>> streamUpdates() { return
+	 * service.listenChanges() .filter(change -> change.type() !=
+	 * CatalogEventType.DELETED) .map(change ->
+	 * ServerSentEvent.<Message>builder(change.payload())
+	 * .event(change.type().name()) .build()); }
+	 */
 }
