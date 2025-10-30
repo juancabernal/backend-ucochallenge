@@ -16,19 +16,22 @@ import co.edu.uco.ucochallenge.domain.user.model.User;
 @Mapper(componentModel = "spring")
 public interface UpdateUserMapper {
 
-    @Mapping(target = "id", source = "command.id")
-    @Mapping(target = "idType", source = "command.payload.idType")
-    @Mapping(target = "idNumber", source = "command.payload.idNumber")
-    @Mapping(target = "firstName", source = "command.payload.firstName")
-    @Mapping(target = "secondName", source = "command.payload.secondName")
-    @Mapping(target = "firstSurname", source = "command.payload.firstSurname")
-    @Mapping(target = "secondSurname", source = "command.payload.secondSurname")
-    @Mapping(target = "homeCity", source = "command.payload.homeCity")
-    @Mapping(target = "email", source = "command.payload.email")
-    @Mapping(target = "mobileNumber", source = "command.payload.mobileNumber")
-    @Mapping(target = "emailConfirmed", constant = "false")
-    @Mapping(target = "mobileNumberConfirmed", constant = "false")
-    User toDomain(UpdateUserInteractor.Command command);
+    default User toDomain(final UpdateUserInteractor.Command command) {
+        final var payload = command.payload();
+        return new User(
+                command.id(),
+                payload.idType(),
+                payload.idNumber(),
+                payload.firstName(),
+                payload.secondName(),
+                payload.firstSurname(),
+                payload.secondSurname(),
+                payload.homeCity(),
+                payload.email(),
+                payload.mobileNumber(),
+                false,
+                false);
+    }
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "email", source = "user.email")
