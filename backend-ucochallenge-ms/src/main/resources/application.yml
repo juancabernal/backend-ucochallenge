@@ -1,7 +1,9 @@
 spring:
   application:
     name: UcoChallenge
+
   datasource:
+    # Si Key Vault no entrega db-url, usará esta por defecto.
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:ucochallenge}}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
     hikari:
@@ -19,10 +21,12 @@ services:
   parameters:
     base-url: http://localhost:8083/api/v1/parameters
 
+# 🔹 Azure Key Vault Config
 azure:
   keyvault:
-    url: ${AZURE_KEY_VAULT_URL:}
+    url: https://uco-vault-secrets.vault.azure.net/
 
+# 🔹 Fallbacks locales (solo si Key Vault falla)
 secrets:
   db-username: ${DB_USERNAME:postgres}
   db-password: ${DB_PASSWORD:postgres}

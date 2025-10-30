@@ -30,52 +30,57 @@ public class DataSourceConfig {
         this.secretProvider = secretProvider;
         this.properties = properties;
     }
+    
 
     @Primary
     @Bean
     public DataSource dataSource() {
         final HikariConfig config = new HikariConfig();
 
-        final String url = properties.getUrl();
-        if (StringUtils.hasText(url)) {
-            config.setJdbcUrl(url);
-        } else {
-            log.warn("Property 'spring.datasource.url' is empty. Verify the active profile configuration.");
+        // 🔹 1. Intentar obtener la URL desde Azure Key Vault (si el secreto existe)
+        String url = secretProvider.getSecret("db-url");
+
+        // 🔹 2. Si no hay URL en Key Vault, usar la de configuración
+        if (!StringUtils.hasText(url)) {
+            url = properties.getUrl();
         }
 
+        // 🔹 3. Validar
+        if (!StringUtils.hasText(url)) {
+            throw new IllegalStateException("Database URL is missing. Provide it via Key Vault or configuration.");
+        }
+
+        config.setJdbcUrl(url);
+
+        // 🔹 Driver desde config
         final String driverClassName = properties.getDriverClassName();
         if (StringUtils.hasText(driverClassName)) {
             config.setDriverClassName(driverClassName);
-        } else {
-            log.warn("Property 'spring.datasource.driver-class-name' is empty. Relying on JDBC auto-detection.");
         }
 
-        final String username = secretProvider.getSecret(SECRET_DB_USERNAME);
+        // 🔹 Usuario y contraseña desde Azure Key Vault
+        final String username = secretProvider.getSecret("db-username");
+        final String password = secretProvider.getSecret("db-password");
+
         if (!StringUtils.hasText(username)) {
-            log.warn("Secret '{}' resolved as empty. Database connections might fail.", SECRET_DB_USERNAME);
+            log.warn("Database username is empty.");
         }
-        config.setUsername(username);
-
-        final String password = secretProvider.getSecret(SECRET_DB_PASSWORD);
         if (!StringUtils.hasText(password)) {
-            log.warn("Secret '{}' resolved as empty. Database connections might fail.", SECRET_DB_PASSWORD);
+            log.warn("Database password is empty.");
         }
+
+        config.setUsername(username);
         config.setPassword(password);
 
+        // 🔹 Pool config
         final DataSourceProperties.Hikari hikari = properties.getHikari();
-        if (hikari.getMaximumPoolSize() != null) {
-            config.setMaximumPoolSize(hikari.getMaximumPoolSize());
-        }
-        if (hikari.getMinimumIdle() != null) {
-            config.setMinimumIdle(hikari.getMinimumIdle());
-        }
-        if (hikari.getConnectionTimeout() != null) {
-            config.setConnectionTimeout(hikari.getConnectionTimeout());
-        }
-        if (StringUtils.hasText(hikari.getPoolName())) {
-            config.setPoolName(hikari.getPoolName());
-        }
+        if (hikari.getMaximumPoolSize() != null) config.setMaximumPoolSize(hikari.getMaximumPoolSize());
+        if (hikari.getMinimumIdle() != null) config.setMinimumIdle(hikari.getMinimumIdle());
+        if (hikari.getConnectionTimeout() != null) config.setConnectionTimeout(hikari.getConnectionTimeout());
+        if (StringUtils.hasText(hikari.getPoolName())) config.setPoolName(hikari.getPoolName());
 
+        log.info("DataSource initialized for URL: {}", url);
         return new HikariDataSource(config);
     }
+
 }

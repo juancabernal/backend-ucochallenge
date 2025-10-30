@@ -117,11 +117,12 @@
     </dependency>
 
     <!-- MockWebServer para pruebas -->
-    <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>mockwebserver</artifactId>
-      <scope>test</scope>
-    </dependency>
+	<dependency>
+	  <groupId>com.squareup.okhttp3</groupId>
+	  <artifactId>mockwebserver</artifactId>
+	  <version>4.12.0</version>
+	  <scope>test</scope>
+	</dependency>
 
   </dependencies>
 
@@ -138,6 +139,22 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
+      
+      <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-compiler-plugin</artifactId>
+		  <version>3.13.0</version>
+		  <configuration>
+		    <source>21</source>
+		    <target>21</target>
+		    <release>21</release>
+		    <fork>true</fork>
+		    <compilerArgs>
+		      <arg>-Xlint:unchecked</arg>
+		      <arg>-Xlint:deprecation</arg>
+		    </compilerArgs>
+		  </configuration>
+		</plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
