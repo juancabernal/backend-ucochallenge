@@ -1,32 +1,43 @@
 package co.edu.uco.messageservice.config;
 
-import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
-import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.r2dbc.ConnectionFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.R2dbcTransactionManager;
 import org.springframework.transaction.ReactiveTransactionManager;
+import org.springframework.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableConfigurationProperties(R2dbcProperties.class)
 @EnableR2dbcRepositories(basePackages = "co.edu.uco.messageservice.infrastructure.repository")
 public class R2dbcConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(R2dbcConfig.class);
+
     @Bean
     public ConnectionFactory connectionFactory(R2dbcProperties properties) {
-        ConnectionFactoryOptions.Builder builder = ConnectionFactoryOptions.parse(properties.getUrl()).mutate();
+        String url = properties.getUrl();
+        Assert.hasText(url, "Property 'spring.r2dbc.url' must be provided");
+
+        logger.info("Initializing R2DBC connection factory for host defined in URL: {}", url);
+
+        ConnectionFactoryBuilder builder = ConnectionFactoryBuilder.withUrl(url);
+
         if (properties.getUsername() != null) {
-            builder.option(ConnectionFactoryOptions.USER, properties.getUsername());
+            builder.username(properties.getUsername());
         }
         if (properties.getPassword() != null) {
-            builder.option(ConnectionFactoryOptions.PASSWORD, properties.getPassword());
+            builder.password(properties.getPassword());
         }
-        return ConnectionFactories.get(builder.build());
+
+        return builder.build();
     }
 
     @Bean

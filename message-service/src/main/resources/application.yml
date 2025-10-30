@@ -2,9 +2,9 @@ spring:
   application:
     name: MESSAGE-SERVICE
   r2dbc:
-    url: r2dbc:postgresql://dpg-d3n8p524d50c73f4am9g-a.oregon-postgres.render.com:5432/software2terraxs
-    username: software2terraxs_user
-    password: 8ICAjMPafawkrgj8AxFoXntuLlL0iGbF
+    url: ${DB_URL:r2dbc:postgresql://localhost:5432/messages}
+    username: ${DB_USERNAME:messages_user}
+    password: ${DB_PASSWORD:changeMe}
     pool:
       initial-size: 5
       max-size: 20
