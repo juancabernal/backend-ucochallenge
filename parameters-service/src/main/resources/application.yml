@@ -1,45 +1,12 @@
 spring:
   application:
-    name: PARAMETERS-SERVICE
-  r2dbc:
-    url: r2dbc:postgresql://dpg-d3n8p524d50c73f4am9g-a.oregon-postgres.render.com:5432/software2terraxs
-    username: software2terraxs_user
-    password: 8ICAjMPafawkrgj8AxFoXntuLlL0iGbF
-    pool:
-      initial-size: 5
-      max-size: 20
-      max-idle-time: 30s
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:/schema.sql
-  data:
-    r2dbc:
-      repositories:
-        enabled: true
+    name: parameters-service
 
 server:
   port: 8083
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-    instance-id: "${spring.application.name}:${spring.cloud.client.ip-address:${server.address:localhost}}:${server.port}"
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
-  endpoint:
-    health:
-      show-details: always
-
-app:
-  cache:
-    polling-interval: 5s

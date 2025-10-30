@@ -1,45 +1,12 @@
 spring:
   application:
-    name: MESSAGE-SERVICE
-  r2dbc:
-    url: ${DB_URL:r2dbc:postgresql://localhost:5432/messages}
-    username: ${DB_USERNAME:messages_user}
-    password: ${DB_PASSWORD:changeMe}
-    pool:
-      initial-size: 5
-      max-size: 20
-      max-idle-time: 30s
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:/schema.sql
-  data:
-    r2dbc:
-      repositories:
-        enabled: true
-
-app:
-  cache:
-    polling-interval: 5s
+    name: message-service
 
 server:
   port: 8082
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-    instance-id: "${spring.application.name}:${spring.cloud.client.ip-address:${server.address:localhost}}:${server.port}"
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
-  endpoint:
-    health:
-      show-details: always
