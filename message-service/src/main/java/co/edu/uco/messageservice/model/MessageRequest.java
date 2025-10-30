@@ -3,11 +3,9 @@ package co.edu.uco.messageservice.model;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * Representa un mensaje simple identificado por una clave.
+ * Representa la petición mínima necesaria para crear o actualizar un mensaje.
  */
-public record Message(
-        @NotBlank(message = "La clave del mensaje es obligatoria")
-        String key,
+public record MessageRequest(
         @NotBlank(message = "El valor del mensaje es obligatorio")
         String value
 ) {

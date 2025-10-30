@@ -1,93 +1,97 @@
 package co.edu.uco.messageservice.catalog;
 
 import co.edu.uco.messageservice.model.Message;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * In-memory reactive catalog that stores {@link Message} instances and emits
- * change notifications for any consumer interested in being synchronized with
- * the latest data.
+ * Catálogo en memoria responsable de mantener los mensajes actualizados y
+ * publicar un flujo reactivo cada vez que ocurre un cambio. Todo se mantiene en
+ * memoria sin depender de una base de datos externa.
  */
+@Component
 public class ReactiveMessageCatalog {
 
-    private final ConcurrentHashMap<String, Message> storage = new ConcurrentHashMap<>();
-    private final Sinks.Many<CatalogEvent<Message>> sink = Sinks.many().multicast().directAllOrNothing();
-    private final Flux<CatalogEvent<Message>> changeStream = sink.asFlux();
+    private final ConcurrentMap<String, Message> store = new ConcurrentHashMap<>();
+    private final Sinks.Many<CatalogEvent> eventSink = Sinks.many().replay().latest();
 
     public ReactiveMessageCatalog() {
-        preload();
-    }
-
-    private void preload() {
-        List<Message> defaults = List.of(
-            new Message("welcome", "¡Bienvenido a la plataforma reactiva!"),
-            new Message("bye", "Gracias por visitarnos, vuelve pronto"),
-            new Message("support", "Escríbenos a soporte@uco.edu.co")
+        // Datos cargados estáticamente al iniciar la aplicación
+        List<Message> initialMessages = List.of(
+                new Message("welcome", "Bienvenido a la plataforma reactiva"),
+                new Message("farewell", "Gracias por visitarnos"),
+                new Message("reminder", "Recuerda practicar Project Reactor")
         );
-        defaults.forEach(message -> storage.put(message.key(), message));
+        initialMessages.forEach(message -> store.put(message.key(), message));
+        emitSnapshot();
     }
 
     /**
-     * Retrieve a message by its key. Emits empty when the key does not exist.
-     */
-    public Mono<Message> findByKey(String key) {
-        return Mono.defer(() -> Mono.justOrEmpty(storage.get(key)));
-    }
-
-    /**
-     * Retrieve all messages reflecting the most up-to-date snapshot.
+     * Devuelve todos los mensajes vigentes en forma reactiva.
      */
     public Flux<Message> findAll() {
-        return Flux.defer(() -> Flux.fromIterable(storage.values()));
+        return Flux.defer(() -> Flux.fromIterable(store.values()));
     }
 
     /**
-     * Save or update a message. The returned {@link Mono} completes with the
-     * latest saved value and triggers a change event.
+     * Devuelve un mensaje específico si existe.
      */
-    public Mono<Message> save(Message message) {
+    public Mono<Message> findByKey(String key) {
+        return Mono.defer(() -> Mono.justOrEmpty(store.get(key)));
+    }
+
+    /**
+     * Inserta o actualiza un mensaje y notifica al resto de consumidores
+     * reemitiento un nuevo snapshot del catálogo.
+     */
+    public Mono<Message> upsert(Message message) {
         return Mono.fromSupplier(() -> {
-            Message previous = storage.put(message.key(), message);
-            CatalogEvent.CatalogEventType type = previous == null
-                ? CatalogEvent.CatalogEventType.CREATED
-                : CatalogEvent.CatalogEventType.UPDATED;
-            sink.tryEmitNext(new CatalogEvent<>(type, message));
+            store.put(message.key(), message);
+            emitSnapshot();
             return message;
         });
     }
 
     /**
-     * Delete a message if present and notify subscribers.
+     * Elimina un mensaje y notifica a los suscriptores de la actualización.
      */
-    public Mono<Void> delete(String key) {
-        return Mono.fromRunnable(() -> {
-            Message removed = storage.remove(key);
+    public Mono<Boolean> delete(String key) {
+        return Mono.fromSupplier(() -> {
+            Message removed = store.remove(key);
             if (removed != null) {
-                sink.tryEmitNext(new CatalogEvent<>(CatalogEvent.CatalogEventType.DELETED, removed));
+                emitSnapshot();
+                return true;
             }
+            return false;
         });
     }
 
     /**
-     * A hot stream that emits every catalog change in real time.
+     * Exposición del flujo de eventos para otros componentes interesados.
+     * Cada evento contiene un snapshot inmutable del catálogo completo y el
+     * instante de generación.
      */
-    public Flux<CatalogEvent<Message>> changes() {
-        return changeStream;
+    public Flux<CatalogEvent> changes() {
+        return eventSink.asFlux();
+    }
+
+    private void emitSnapshot() {
+        Map<String, Message> snapshot = Map.copyOf(store);
+        CatalogEvent event = new CatalogEvent(snapshot.values(), Instant.now());
+        eventSink.emitNext(event, Sinks.EmitFailureHandler.FAIL_FAST);
     }
 
     /**
-     * Provides a convenient view that emits the current snapshot and then any
-     * subsequent changes as soon as they occur.
+     * Evento que encapsula la colección actual de mensajes.
      */
-    public Flux<Message> liveView() {
-        return Flux.defer(() -> Flux.fromIterable(storage.entrySet()))
-            .map(Map.Entry::getValue)
-            .concatWith(changes().map(CatalogEvent::payload));
+    public record CatalogEvent(Collection<Message> messages, Instant emittedAt) {
     }
 }
