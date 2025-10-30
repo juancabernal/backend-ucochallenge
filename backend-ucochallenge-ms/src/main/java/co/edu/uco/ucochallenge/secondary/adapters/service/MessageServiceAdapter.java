@@ -5,6 +5,8 @@ import java.util.Map;
 
 import jakarta.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -19,6 +21,8 @@ import co.edu.uco.ucochallenge.secondary.ports.service.MessageServicePort;
 
 @Component
 public class MessageServiceAdapter implements MessageServicePort {
+
+    private static final Logger log = LoggerFactory.getLogger(MessageServiceAdapter.class);
 
     private final CatalogService catalogService;
 
@@ -45,12 +49,15 @@ public class MessageServiceAdapter implements MessageServicePort {
         final Map<String, String> safeParameters = ObjectHelper.getDefault(parameters, Collections.emptyMap());
 
         try {
+            log.debug("Fetching message '{}' with parameters {}", key, safeParameters.keySet());
             return catalogService.findMessageValue(key, safeParameters)
                     .filter(value -> !TextHelper.isEmpty(value))
                     .orElse(key);
         } catch (final WebClientResponseException.NotFound notFound) {
+            log.info("Message '{}' not found in remote catalog", key);
             return key;
         } catch (final WebClientRequestException | WebClientResponseException exception) {
+            log.error("Failed to fetch message '{}' from remote catalog", key, exception);
             throw InfrastructureException.buildFromCatalog(
                     MessageCodes.Infrastructure.MessageService.UNAVAILABLE_TECHNICAL,
                     MessageCodes.Infrastructure.MessageService.UNAVAILABLE_USER,
