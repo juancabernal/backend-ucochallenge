@@ -12,7 +12,7 @@ import co.edu.uco.ucochallenge.domain.user.model.User;
 //.
 @Mapper(componentModel = "spring")
 public interface ListUsersMapper {
-
+	
     @Mapping(target = "userId", source = "id")
     @Mapping(target = "idType", expression = "java(user.idType().toString())")
     @Mapping(target = "fullName", expression = "java(buildFullName(user))")
@@ -28,5 +28,6 @@ public interface ListUsersMapper {
                             user.secondName(),
                             user.firstSurname(),
                             user.secondSurname());
-    }
+    }	
+	
 }

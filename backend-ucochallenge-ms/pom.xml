@@ -87,7 +87,7 @@
       <artifactId>HikariCP</artifactId>
     </dependency>
 
-    <!-- MapStruct -->
+    <!-- ✅ MapStruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
@@ -101,7 +101,7 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Lombok -->
+    <!-- ✅ Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -109,20 +109,20 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Testing -->
+    <!-- ✅ Testing -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <!-- MockWebServer para pruebas -->
-	<dependency>
-	  <groupId>com.squareup.okhttp3</groupId>
-	  <artifactId>mockwebserver</artifactId>
-	  <version>4.12.0</version>
-	  <scope>test</scope>
-	</dependency>
+    <!-- ✅ MockWebServer para pruebas -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>4.12.0</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
@@ -140,6 +140,7 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
 
+      <!-- ✅ Este plugin asegura que MapStruct genere los mappers -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -148,11 +149,6 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
           <release>${java.version}</release>
-          <fork>true</fork>
-          <compilerArgs>
-            <arg>-Xlint:unchecked</arg>
-            <arg>-Xlint:deprecation</arg>
-          </compilerArgs>
           <annotationProcessorPaths>
             <path>
               <groupId>org.mapstruct</groupId>
