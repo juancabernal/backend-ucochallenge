@@ -60,7 +60,7 @@ public class VaultSecretProvider implements SecretProvider {
 
     private Optional<String> readFromVault(final String key) {
         try {
-            final KeyValueResponseSupport<Map<String, Object>> response = operations.get(context);
+            final KeyValueResponseSupport<Map<String, Object>> response = operations.get(context, Map.class);
             final Map<String, Object> data = response == null ? Collections.emptyMap() : response.getData();
             if (data == null || !data.containsKey(key)) {
                 return Optional.empty();
