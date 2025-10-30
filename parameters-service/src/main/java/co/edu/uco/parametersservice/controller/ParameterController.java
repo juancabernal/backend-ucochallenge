@@ -17,38 +17,28 @@ import co.edu.uco.parametersservice.catalog.ParameterCatalog;
 @RequestMapping("/api/v1/parameters")
 public class ParameterController {
 
-        @GetMapping("/{key}")
-        public ResponseEntity<Parameter> getParameter(@PathVariable String key) {
+	@GetMapping("/{key}")
+	public ResponseEntity<Parameter> getParameter(@PathVariable String key) {
 
-                final Parameter value = ParameterCatalog.getParameterValue(key);
-                if (value == null) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                        .cacheControl(CacheControl.noStore().mustRevalidate())
-                                        .header("Pragma", "no-cache")
-                                        .header("Expires", "0")
-                                        .build();
-                }
+		final Parameter value = ParameterCatalog.getParameterValue(key);
+		if (value == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).cacheControl(CacheControl.noStore().mustRevalidate())
+					.header("Pragma", "no-cache").header("Expires", "0").build();
+		}
 
-                return ResponseEntity.ok()
-                                .cacheControl(CacheControl.noStore().mustRevalidate())
-                                .header("Pragma", "no-cache")
-                                .header("Expires", "0")
-                                .body(new Parameter(value.getKey(), value.getValue()));
+		return ResponseEntity.ok().cacheControl(CacheControl.noStore().mustRevalidate()).header("Pragma", "no-cache")
+				.header("Expires", "0").body(new Parameter(value.getKey(), value.getValue()));
 
-        }
+	}
 
-        @PutMapping("/{key}")
-        public ResponseEntity<Parameter> modifyParameter(@PathVariable String key, @RequestBody Parameter value) {
+	@PutMapping("/{key}")
+	public ResponseEntity<Parameter> modifyParameter(@PathVariable String key, @RequestBody Parameter value) {
 
-                value.setKey(key);
-                ParameterCatalog.synchronizeParameterValue(value);
-                return ResponseEntity.ok()
-                                .cacheControl(CacheControl.noStore().mustRevalidate())
-                                .header("Pragma", "no-cache")
-                                .header("Expires", "0")
-                                .body(new Parameter(value.getKey(), value.getValue()));
+		value.setKey(key);
+		ParameterCatalog.synchronizeParameterValue(value);
+		return ResponseEntity.ok().cacheControl(CacheControl.noStore().mustRevalidate()).header("Pragma", "no-cache")
+				.header("Expires", "0").body(new Parameter(value.getKey(), value.getValue()));
 
-        }
+	}
 
 }
-
