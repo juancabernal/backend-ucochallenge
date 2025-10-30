@@ -47,13 +47,14 @@ public class MessageController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Message> createMessage(@Valid @RequestBody Mono<MessageRequest> requestMono) {
-        return requestMono.flatMap(request -> messageService.createMessage(request.code(), request.value()));
+        return requestMono.flatMap(
+                request -> messageService.createMessage(request.code(), request.text(), request.language()));
     }
 
     @PutMapping("/{code}")
     public Mono<Message> updateMessage(@PathVariable String code,
             @Valid @RequestBody Mono<MessageUpdateRequest> requestMono) {
-        return requestMono.flatMap(request -> messageService.updateMessage(code, request.value()));
+        return requestMono.flatMap(request -> messageService.updateMessage(code, request.text(), request.language()));
     }
 
     @DeleteMapping("/{code}")
@@ -67,6 +68,14 @@ public class MessageController {
         return messageService.streamChanges().map(change -> ServerSentEvent.<MessageChange>builder()
                 .event(change.type().name())
                 .data(change)
+                .build());
+    }
+
+    @GetMapping(value = "/snapshots", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<java.util.List<Message>>> streamCacheSnapshots() {
+        return messageService.streamCacheSnapshots().map(snapshot -> ServerSentEvent.<java.util.List<Message>>builder()
+                .event("CACHE_REFRESH")
+                .data(snapshot)
                 .build());
     }
 }

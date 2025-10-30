@@ -4,5 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record MessageRequest(
         @NotBlank(message = "Code is required") String code,
-        @NotBlank(message = "Value is required") String value) {
+        @NotBlank(message = "Text is required") String text,
+        @NotBlank(message = "Language is required") String language) {
 }

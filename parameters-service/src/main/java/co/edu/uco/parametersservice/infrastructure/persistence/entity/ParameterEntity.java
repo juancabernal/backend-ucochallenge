@@ -13,7 +13,8 @@ public class ParameterEntity {
     @Id
     private UUID id;
 
-    private String code;
+    @Column("param_key")
+    private String key;
 
     private String value;
 
@@ -28,12 +29,12 @@ public class ParameterEntity {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
+    public String getKey() {
+        return key;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getValue() {

@@ -39,27 +39,27 @@ public class ParameterController {
         return parameterService.findAll();
     }
 
-    @GetMapping("/{code}")
-    public Mono<Parameter> getParameterByCode(@PathVariable String code) {
-        return parameterService.findByCode(code);
+    @GetMapping("/{key}")
+    public Mono<Parameter> getParameterByKey(@PathVariable String key) {
+        return parameterService.findByKey(key);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Parameter> createParameter(@Valid @RequestBody Mono<ParameterRequest> requestMono) {
-        return requestMono.flatMap(request -> parameterService.createParameter(request.code(), request.value()));
+        return requestMono.flatMap(request -> parameterService.createParameter(request.key(), request.value()));
     }
 
-    @PutMapping("/{code}")
-    public Mono<Parameter> updateParameter(@PathVariable String code,
+    @PutMapping("/{key}")
+    public Mono<Parameter> updateParameter(@PathVariable String key,
             @Valid @RequestBody Mono<ParameterUpdateRequest> requestMono) {
-        return requestMono.flatMap(request -> parameterService.updateParameter(code, request.value()));
+        return requestMono.flatMap(request -> parameterService.updateParameter(key, request.value()));
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{key}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> deleteParameter(@PathVariable String code) {
-        return parameterService.deleteParameter(code).then();
+    public Mono<Void> deleteParameter(@PathVariable String key) {
+        return parameterService.deleteParameter(key).then();
     }
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -67,6 +67,14 @@ public class ParameterController {
         return parameterService.streamChanges().map(change -> ServerSentEvent.<ParameterChange>builder()
                 .event(change.type().name())
                 .data(change)
+                .build());
+    }
+
+    @GetMapping(value = "/snapshots", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<java.util.List<Parameter>>> streamCacheSnapshots() {
+        return parameterService.streamCacheSnapshots().map(snapshot -> ServerSentEvent.<java.util.List<Parameter>>builder()
+                .event("CACHE_REFRESH")
+                .data(snapshot)
                 .build());
     }
 }

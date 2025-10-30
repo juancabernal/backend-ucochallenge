@@ -18,6 +18,10 @@ spring:
       repositories:
         enabled: true
 
+app:
+  cache:
+    polling-interval: 5s
+
 server:
   port: 8082
 
