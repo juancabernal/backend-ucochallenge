@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -19,7 +20,8 @@ import co.edu.uco.ucochallenge.crosscuting.messages.MessageServicePortHolder;
 import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.orchestration.CatalogService;
 import co.edu.uco.ucochallenge.infrastructure.secondary.ports.service.MessageServicePort;
 
-@Component
+@Primary
+@Component("catalogMessageServiceAdapter")
 public class MessageServiceAdapter implements MessageServicePort {
 
     private static final Logger log = LoggerFactory.getLogger(MessageServiceAdapter.class);
