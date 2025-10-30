@@ -31,7 +31,8 @@ public class UpdateUserInteractorImpl implements UpdateUserInteractor {
         @Override
         public UpdateUserOutputDTO execute(final Command command) {
                 final UpdateUserInputDTO normalizedPayload = UpdateUserInputDTO.normalize(command.payload());
-                final User changes = mapper.toDomain(command.id(), normalizedPayload);
+                final Command normalizedCommand = Command.of(command.id(), normalizedPayload);
+                final User changes = mapper.toDomain(normalizedCommand);
                 final User updatedUser = useCase.execute(changes);
                 final List<LinkDTO> links = buildLinks(updatedUser.id());
                 return mapper.toOutput(updatedUser, links);
