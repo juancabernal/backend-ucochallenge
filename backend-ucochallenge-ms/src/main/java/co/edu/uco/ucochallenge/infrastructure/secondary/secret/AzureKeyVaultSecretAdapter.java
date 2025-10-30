@@ -6,6 +6,7 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import co.edu.uco.ucochallenge.domain.secret.port.SecretProviderPort;
  */
 @Component
 @Primary
+@ConditionalOnProperty(name = "azure.keyvault.url")
 public class AzureKeyVaultSecretAdapter implements SecretProviderPort {
 
     private static final Logger log = LoggerFactory.getLogger(AzureKeyVaultSecretAdapter.class);

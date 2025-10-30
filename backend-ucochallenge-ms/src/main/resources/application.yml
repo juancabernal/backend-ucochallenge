@@ -18,6 +18,10 @@ azure:
   keyvault:
     url: https://uco-vault-secrets.vault.azure.net/
 
+secrets:
+  db-username: ${DB_USERNAME:software2terraxs_user}
+  db-password: ${DB_PASSWORD:8ICAjMPafawkrgj8AxFoXntuLlL0iGbF}
+
 logging:
   level:
     root: INFO
