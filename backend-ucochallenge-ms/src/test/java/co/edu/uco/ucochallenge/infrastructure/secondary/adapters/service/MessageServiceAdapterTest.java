@@ -1,4 +1,4 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,7 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
-import co.edu.uco.ucochallenge.secondary.adapters.service.orchestration.CatalogService;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.orchestration.CatalogService;
 
 class MessageServiceAdapterTest {
 

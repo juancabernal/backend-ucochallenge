@@ -1,4 +1,4 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service;
 
 import java.util.Collections;
 
@@ -14,8 +14,8 @@ import co.edu.uco.ucochallenge.crosscuting.exception.InfrastructureException;
 import co.edu.uco.ucochallenge.crosscuting.helper.TextHelper;
 import co.edu.uco.ucochallenge.crosscuting.messages.MessageCodes;
 import co.edu.uco.ucochallenge.crosscuting.parameter.ParameterServicePortHolder;
-import co.edu.uco.ucochallenge.secondary.adapters.service.orchestration.CatalogService;
-import co.edu.uco.ucochallenge.secondary.ports.service.ParameterServicePort;
+import co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.orchestration.CatalogService;
+import co.edu.uco.ucochallenge.infrastructure.secondary.ports.service.ParameterServicePort;
 
 @Component
 public class ParameterServiceAdapter implements ParameterServicePort {

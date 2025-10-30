@@ -1,9 +1,8 @@
-package co.edu.uco.ucochallenge.secondary.adapters.service.client;
+package co.edu.uco.ucochallenge.infrastructure.secondary.adapters.service.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,18 +13,18 @@ import co.edu.uco.ucochallenge.crosscuting.config.CatalogConfig;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-class MessageCatalogClientTest {
+class ParameterCatalogClientTest {
 
     private MockWebServer mockWebServer;
-    private MessageCatalogClient client;
+    private ParameterCatalogClient client;
 
     @BeforeEach
     void setUp() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-        final String baseUrl = mockWebServer.url("/messages").toString();
-        final WebClient webClient = new CatalogConfig().messageCatalogWebClient(WebClient.builder(), baseUrl);
-        client = new MessageCatalogClient(webClient);
+        final String baseUrl = mockWebServer.url("/parameters").toString();
+        final WebClient webClient = new CatalogConfig().parameterCatalogWebClient(WebClient.builder(), baseUrl);
+        client = new ParameterCatalogClient(webClient);
     }
 
     @AfterEach
@@ -34,24 +33,23 @@ class MessageCatalogClientTest {
     }
 
     @Test
-    void shouldFetchLatestValueEveryTime() throws InterruptedException {
+    void shouldReturnLastValue() throws InterruptedException {
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setHeader("Content-Type", "application/json")
-                .setBody("{\"key\":\"greeting\",\"value\":\"Hola\"}"));
+                .setBody("{\"key\":\"feature.flag\",\"value\":\"OFF\"}"));
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setHeader("Content-Type", "application/json")
-                .setBody("{\"key\":\"greeting\",\"value\":\"Adios\"}"));
+                .setBody("{\"key\":\"feature.flag\",\"value\":\"ON\"}"));
 
-        final String firstValue = client.findValueByKey("greeting", Map.of("lang", "es"))
+        final String firstValue = client.findValueByKey("feature.flag")
                 .orElseThrow();
-        final String secondValue = client.findValueByKey("greeting", Map.of("lang", "es"))
+        final String secondValue = client.findValueByKey("feature.flag")
                 .orElseThrow();
 
-        assertThat(firstValue).isEqualTo("Hola");
-        assertThat(secondValue).isEqualTo("Adios");
-
+        assertThat(firstValue).isEqualTo("OFF");
+        assertThat(secondValue).isEqualTo("ON");
         assertThat(mockWebServer.getRequestCount()).isEqualTo(2);
         assertThat(mockWebServer.takeRequest().getHeader("Cache-Control"))
                 .isEqualTo("no-cache, no-store, must-revalidate");
@@ -59,9 +57,10 @@ class MessageCatalogClientTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenEntryIsMissing() {
+    void shouldBeEmptyWhenNotFound() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(404));
 
-        assertThat(client.findValueByKey("missing", Map.of())).isEmpty();
+        assertThat(client.findValueByKey("missing"))
+                .isEmpty();
     }
 }
