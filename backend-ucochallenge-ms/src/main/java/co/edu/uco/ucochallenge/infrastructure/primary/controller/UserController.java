@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,9 +24,6 @@ import co.edu.uco.ucochallenge.application.user.registerUser.dto.RegisterUserOut
 import co.edu.uco.ucochallenge.application.user.registerUser.interactor.RegisterUserInteractor;
 import co.edu.uco.ucochallenge.application.user.searchUsers.dto.SearchUsersFilterDTO;
 import co.edu.uco.ucochallenge.application.user.searchUsers.interactor.SearchUsersInteractor;
-import co.edu.uco.ucochallenge.application.user.updateUser.dto.UpdateUserInputDTO;
-import co.edu.uco.ucochallenge.application.user.updateUser.dto.UpdateUserOutputDTO;
-import co.edu.uco.ucochallenge.application.user.updateUser.interactor.UpdateUserInteractor;
 import co.edu.uco.ucochallenge.infrastructure.primary.controller.response.ApiSuccessResponse;
 
 @RestController
@@ -39,21 +35,22 @@ public class UserController {
         private final GetUserInteractor getUserInteractor;
         private final SearchUsersInteractor searchUsersInteractor;
         private final DeleteUserInteractor deleteUserInteractor;
-        private final UpdateUserInteractor updateUserInteractor;
+		/* private final UpdateUserInteractor updateUserInteractor; */
 
         public UserController(
                         final RegisterUserInteractor registerUserInteractor,
                         final ListUsersInteractor listUsersInteractor,
                         final GetUserInteractor getUserInteractor,
                         final SearchUsersInteractor searchUsersInteractor,
-                        final DeleteUserInteractor deleteUserInteractor,
-                        final UpdateUserInteractor updateUserInteractor) {
+				final DeleteUserInteractor deleteUserInteractor/*
+																 * , final UpdateUserInteractor updateUserInteractor
+																 */) {
                 this.registerUserInteractor = registerUserInteractor;
                 this.listUsersInteractor = listUsersInteractor;
                 this.getUserInteractor = getUserInteractor;
                 this.searchUsersInteractor = searchUsersInteractor;
                 this.deleteUserInteractor = deleteUserInteractor;
-                this.updateUserInteractor = updateUserInteractor;
+				/* this.updateUserInteractor = updateUserInteractor; */
         }
 
         @PostMapping
@@ -103,12 +100,16 @@ public class UserController {
                 return ResponseEntity.ok(ApiSuccessResponse.of("Usuario eliminado exitosamente.", Void.returnVoid()));
         }
 
-        @PutMapping("/{id}")
-        public ResponseEntity<ApiSuccessResponse<UpdateUserOutputDTO>> updateUser(
-                        @PathVariable("id") final UUID id,
-                        @RequestBody final UpdateUserInputDTO dto) {
-                final UpdateUserOutputDTO response = updateUserInteractor
-                                .execute(UpdateUserInteractor.Command.of(id, dto));
-                return ResponseEntity.ok(ApiSuccessResponse.of("Usuario actualizado exitosamente.", response));
-        }
+		/*
+		 * @PutMapping("/{id}") public
+		 * ResponseEntity<ApiSuccessResponse<UpdateUserOutputDTO>> updateUser(
+		 * 
+		 * @PathVariable("id") final UUID id,
+		 * 
+		 * @RequestBody final UpdateUserInputDTO dto) { final UpdateUserOutputDTO
+		 * response = updateUserInteractor .execute(UpdateUserInteractor.Command.of(id,
+		 * dto)); return
+		 * ResponseEntity.ok(ApiSuccessResponse.of("Usuario actualizado exitosamente.",
+		 * response)); }
+		 */
 }
