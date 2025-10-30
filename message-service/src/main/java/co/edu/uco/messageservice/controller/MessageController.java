@@ -1,8 +1,9 @@
 package co.edu.uco.messageservice.controller;
 
+import co.edu.uco.messageservice.model.Message;
+import co.edu.uco.messageservice.service.ReactiveMessageService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,71 +12,63 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import co.edu.uco.messageservice.application.service.MessageService;
-import co.edu.uco.messageservice.controller.dto.MessageRequest;
-import co.edu.uco.messageservice.controller.dto.MessageUpdateRequest;
-import co.edu.uco.messageservice.domain.event.MessageChange;
-import co.edu.uco.messageservice.domain.model.Message;
-import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Reactive REST endpoints that expose the in-memory catalog.
+ * <p>
+ * Example of the real-time behaviour:
+ * <pre>
+ *   curl -X PUT -H "Content-Type: application/json" \
+ *     -d '{"key":"welcome","value":"Hola en vivo"}' \
+ *     http://localhost:8082/api/messages/welcome
+ *   curl http://localhost:8082/api/messages/welcome
+ * </pre>
+ * The second call immediately returns the updated payload without restarting the app.
+ */
 @RestController
-@RequestMapping("/api/v1/messages")
+@RequestMapping("/api/messages")
 @Validated
 public class MessageController {
 
-    private final MessageService messageService;
+    private final ReactiveMessageService service;
 
-    public MessageController(MessageService messageService) {
-        this.messageService = messageService;
+    public MessageController(ReactiveMessageService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public Flux<Message> getMessages() {
-        return messageService.findAll();
+    public Flux<Message> findAll() {
+        return service.findAll();
     }
 
-    @GetMapping("/{code}")
-    public Mono<Message> getMessageByCode(@PathVariable String code) {
-        return messageService.findByCode(code);
+    @GetMapping("/{key}")
+    public Mono<ResponseEntity<Message>> findByKey(@PathVariable String key) {
+        return service.findByKey(key)
+            .map(ResponseEntity::ok)
+            .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Message> createMessage(@Valid @RequestBody Mono<MessageRequest> requestMono) {
-        return requestMono.flatMap(
-                request -> messageService.createMessage(request.code(), request.text(), request.language()));
+    public Mono<ResponseEntity<Message>> create(@RequestBody Mono<Message> request) {
+        return request
+            .flatMap(service::save)
+            .map(saved -> ResponseEntity.status(HttpStatus.CREATED).body(saved));
     }
 
-    @PutMapping("/{code}")
-    public Mono<Message> updateMessage(@PathVariable String code,
-            @Valid @RequestBody Mono<MessageUpdateRequest> requestMono) {
-        return requestMono.flatMap(request -> messageService.updateMessage(code, request.text(), request.language()));
+    @PutMapping("/{key}")
+    public Mono<ResponseEntity<Message>> update(@PathVariable String key, @RequestBody Mono<Message> request) {
+        return request
+            .map(body -> new Message(key, body.value()))
+            .flatMap(service::save)
+            .map(ResponseEntity::ok);
     }
 
-    @DeleteMapping("/{code}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> deleteMessage(@PathVariable String code) {
-        return messageService.deleteMessage(code).then();
-    }
-
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<MessageChange>> streamMessageChanges() {
-        return messageService.streamChanges().map(change -> ServerSentEvent.<MessageChange>builder()
-                .event(change.type().name())
-                .data(change)
-                .build());
-    }
-
-    @GetMapping(value = "/snapshots", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<java.util.List<Message>>> streamCacheSnapshots() {
-        return messageService.streamCacheSnapshots().map(snapshot -> ServerSentEvent.<java.util.List<Message>>builder()
-                .event("CACHE_REFRESH")
-                .data(snapshot)
-                .build());
+    @DeleteMapping("/{key}")
+    public Mono<ResponseEntity<Void>> delete(@PathVariable String key) {
+        return service.delete(key)
+            .then(Mono.fromSupplier(() -> ResponseEntity.noContent().<Void>build()));
     }
 }
