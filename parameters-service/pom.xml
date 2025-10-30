@@ -3,12 +3,12 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.6</version>
-		<relativePath/>
-	</parent>
+        <parent>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>3.3.5</version>
+                <relativePath/>
+        </parent>
 
 	<groupId>co.edu.uco.parametersservice</groupId>
 	<artifactId>parameters-service</artifactId>
@@ -20,16 +20,16 @@
 		<java.version>21</java.version>
 	</properties>
 
-	<!-- BOM de Spring Cloud compatible con Boot 3.5.x -->
+        <!-- BOM de Spring Cloud compatible con Spring Boot 3.3.x -->
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2025.0.0</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+                        <dependency>
+                                <groupId>org.springframework.cloud</groupId>
+                                <artifactId>spring-cloud-dependencies</artifactId>
+                                <version>2023.0.4</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+                        </dependency>
 		</dependencies>
 	</dependencyManagement>
 
