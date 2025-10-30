@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS messages (
+    id UUID PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_code ON messages(code);
