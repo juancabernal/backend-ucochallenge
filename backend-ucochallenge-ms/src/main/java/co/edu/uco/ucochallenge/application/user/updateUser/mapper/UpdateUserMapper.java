@@ -16,6 +16,7 @@ import co.edu.uco.ucochallenge.domain.user.model.User;
 @Mapper(componentModel = "spring")
 public interface UpdateUserMapper {
 
+<<<<<<< HEAD
         @Mapping(target = "id", source = "command.id")
         @Mapping(target = "idType", source = "command.payload.idType")
         @Mapping(target = "idNumber", source = "command.payload.idNumber")
@@ -34,10 +35,30 @@ public interface UpdateUserMapper {
         @Mapping(target = "email", source = "user.email")
         @Mapping(target = "fullName", expression = "java(buildFullName(user))")
         UpdateUserOutputDTO toOutput(User user, List<LinkDTO> links);
+=======
+    @Mapping(target = "id", source = "command.id")
+    @Mapping(target = "idType", source = "command.payload.idType")
+    @Mapping(target = "idNumber", source = "command.payload.idNumber")
+    @Mapping(target = "firstName", source = "command.payload.firstName")
+    @Mapping(target = "secondName", source = "command.payload.secondName")
+    @Mapping(target = "firstSurname", source = "command.payload.firstSurname")
+    @Mapping(target = "secondSurname", source = "command.payload.secondSurname")
+    @Mapping(target = "homeCity", source = "command.payload.homeCity")
+    @Mapping(target = "email", source = "command.payload.email")
+    @Mapping(target = "mobileNumber", source = "command.payload.mobileNumber")
+    @Mapping(target = "emailConfirmed", constant = "false")
+    @Mapping(target = "mobileNumberConfirmed", constant = "false")
+    User toDomain(UpdateUserInteractor.Command command);
 
-        default String buildFullName(final User user) {
-                return Stream.of(user.firstName(), user.secondName(), user.firstSurname(), user.secondSurname())
-                                .filter(name -> !TextHelper.isEmpty(name))
-                                .collect(Collectors.joining(" "));
-        }
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "fullName", expression = "java(buildFullName(user))")
+    UpdateUserOutputDTO toOutput(User user, List<LinkDTO> links);
+>>>>>>> 4cc42d6 (Overwritting update user mapper)
+
+    default String buildFullName(final User user) {
+        return Stream.of(user.firstName(), user.secondName(), user.firstSurname(), user.secondSurname())
+                .filter(name -> !TextHelper.isEmpty(name))
+                .collect(Collectors.joining(" "));
+    }
 }

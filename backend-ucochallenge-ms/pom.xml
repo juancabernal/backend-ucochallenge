@@ -9,7 +9,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.3.5</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <relativePath/>
   </parent>
 
   <groupId>co.edu.uco.ucochallenge</groupId>
@@ -24,6 +24,19 @@
     <mapstruct.version>1.5.5.Final</mapstruct.version>
   </properties>
 
+  <!-- 🔧 Gestión centralizada de versiones de Spring Cloud -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2024.0.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
 
     <!-- Spring core -->
@@ -32,10 +45,16 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
-    <!-- Reactive stack (tu aporte local) -->
+    <!-- Reactive stack -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+
+    <!-- Spring Cloud Vault Config -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-vault-config</artifactId>
     </dependency>
 
     <!-- JPA -->
@@ -80,7 +99,7 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- MockWebServer para pruebas (tu aporte local) -->
+    <!-- MockWebServer para pruebas -->
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>mockwebserver</artifactId>
