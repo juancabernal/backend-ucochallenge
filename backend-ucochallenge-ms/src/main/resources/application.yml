@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: UcoChallenge
+  datasource:
+    url: jdbc:postgresql://dpg-d3n8p524d50c73f4am9g-a.oregon-postgres.render.com:5432/software2terraxs
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8083
+
+services:
+  message:
+    base-url: http://localhost:8082/api/v1/messages
+  parameters:
+    base-url: http://localhost:8083/api/v1/parameters
+
+azure:
+  keyvault:
+    url: https://uco-vault-secrets.vault.azure.net/
+
+logging:
+  level:
+    root: INFO
+    com.azure.identity: INFO
+    co.edu.uco.ucochallenge.infrastructure.secondary.secret: DEBUG
