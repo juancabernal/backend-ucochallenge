@@ -122,7 +122,7 @@ public class ReactiveMessageCatalog {
         register("register.user.rule.mobile.confirmation.pending",
                 "El número móvil debe ser confirmado para finalizar el registro.");
         register("list.users.validation.page.negative", "La página solicitada no puede ser negativa.");
-        register("list.users.validation.size.invalid", "El tamaño de página debe estar entre 1 y 50 registros.");
+        register("list.users.validation.size.invalid", "El tamaño de página debe estar entre 1 y 100 registros.");
 
         register("application.unexpectedError.technical", "Ocurrió un error inesperado al procesar la solicitud.");
         register("application.unexpectedError.user",
@@ -196,5 +196,9 @@ public class ReactiveMessageCatalog {
         register("domain.user.idType.notFound.user", "El tipo de identificación seleccionado no es válido.");
         register("domain.user.homeCity.notFound.technical", "La ciudad de residencia indicada no existe.");
         register("domain.user.homeCity.notFound.user", "La ciudad de residencia seleccionada no es válida.");
+        register("domain.pagination.page.invalid.technical", "La página solicitada debe ser un número entero positivo.");
+        register("domain.pagination.page.invalid.user", "El número de página no es válido.");
+        register("domain.pagination.size.invalid.technical", "El tamaño de página debe estar entre 1 y 100 registros.");
+        register("domain.pagination.size.invalid.user", "Debes seleccionar un tamaño de página entre 1 y 100 resultados.");
     }
 }

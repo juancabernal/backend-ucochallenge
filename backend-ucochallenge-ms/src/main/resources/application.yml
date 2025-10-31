@@ -31,8 +31,46 @@ secrets:
   db-username: ${DB_USERNAME:postgres}
   db-password: ${DB_PASSWORD:postgres}
 
+uco-challenge:
+  ai:
+    openai:
+      enabled: ${AI_OPENAI_ENABLED:false}
+      endpoint: ${AI_OPENAI_ENDPOINT:https://api.openai.com/v1/responses}
+      api-key: ${AI_OPENAI_API_KEY:}
+      model: ${AI_OPENAI_MODEL:gpt-4o-mini}
+      temperature: ${AI_OPENAI_TEMPERATURE:0.2}
+
 logging:
   level:
     root: INFO
     com.azure.identity: INFO
     co.edu.uco.ucochallenge.infrastructure.secondary.secret: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  observations:
+    http:
+      server:
+        requests:
+          enabled: true
+  tracing:
+    enabled: ${MANAGEMENT_TRACING_ENABLED:false}
+    sampling:
+      probability: 0.25
+    exporter:
+      otlp:
+        enabled: ${OTLP_EXPORT_ENABLED:false}
+        endpoint: ${OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+        compression: gzip
