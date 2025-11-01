@@ -1,9 +1,8 @@
 spring:
   application:
-    name: UcoChallenge
-
+    name: uco-challenge
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:ucochallenge}}
+    url: ${SPRING_DATASOURCE_URL:}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
     hikari:
       pool-name: ${SPRING_DATASOURCE_POOL_NAME:UcoHikariPool}
@@ -12,44 +11,32 @@ spring:
       connection-timeout: ${SPRING_DATASOURCE_CONNECTION_TIMEOUT:30000}
 
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
-# =========================
-# ✅ Eureka (NO estaba en el 2do)
-# =========================
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER_URI:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
 
-# =========================
-# ✅ Azure Key Vault (ya estaba)
-# =========================
 azure:
   keyvault:
-    url: https://uco-vault-secrets.vault.azure.net/
+    url: ${AZURE_KEYVAULT_URL:https://uco-vault-secrets.vault.azure.net/}
 
-# ✅ Fallbacks si Key Vault falla
 secrets:
-  db-username: ${DB_USERNAME:postgres}
-  db-password: ${DB_PASSWORD:postgres}
+  db-url: ${DB_URL:}
+  db-username: ${DB_USERNAME:}
+  db-password: ${DB_PASSWORD:}
 
-# =========================
-# ✅ Servicios REST internos (del 1er YAML)
-# =========================
 services:
   message:
-    base-url: http://localhost:8082/api/v1/messages
+    base-url: ${MESSAGE_SERVICE_BASE_URL:http://localhost:8082/api/v1/messages}
   parameters:
-    base-url: http://localhost:8083/api/v1/parameters
+    base-url: ${PARAMETERS_SERVICE_BASE_URL:http://localhost:8083/api/v1/parameters}
 
-# =========================
-# ✅ Logging con TraceId y SpanId (del 1er YAML)
-# =========================
 logging:
   level:
     root: INFO
@@ -59,9 +46,6 @@ logging:
   pattern:
     level: "%5p [traceId=%X{traceId:-}, spanId=%X{spanId:-}]"
 
-# =========================
-# ✅ Management + Tracing + Prometheus + OTLP (Fusión de ambos)
-# =========================
 management:
   endpoints:
     web:
@@ -69,28 +53,23 @@ management:
         include: health,info,prometheus
   endpoint:
     health:
-      show-details: always  # puedes cambiar a "when_authorized" si lo quieres seguro
-
+      show-details: always
   metrics:
     tags:
       application: ${spring.application.name}
     distribution:
       percentiles-histogram:
         http.server.requests: true
-
   tracing:
-    enabled: ${MANAGEMENT_TRACING_ENABLED:true}  # en el 1° estaba true
+    enabled: ${MANAGEMENT_TRACING_ENABLED:true}
     sampling:
-      probability: 1.0  # para desarrollo, todo se traza
+      probability: 1.0
     exporter:
       otlp:
         enabled: true
-        endpoint: http://localhost:4318/v1/traces
+        endpoint: ${OTLP_ENDPOINT:http://localhost:4318/v1/traces}
         compression: gzip
 
-# =========================
-# ✅ Configuración de IA (segunda versión)
-# =========================
 uco-challenge:
   ai:
     openai:
