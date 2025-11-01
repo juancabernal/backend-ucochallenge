@@ -5,7 +5,7 @@ import co.edu.uco.ucochallenge.domain.pagination.PageCriteria;
 public record PaginationRequestDTO(int page, int size) {
 
     private static final int DEFAULT_PAGE = 0;
-    private static final int DEFAULT_SIZE = 20;
+    private static final int DEFAULT_SIZE = 2;
     private static final int MAX_SIZE = 100;
 
     public static PaginationRequestDTO normalize(final Integer page, final Integer size) {
